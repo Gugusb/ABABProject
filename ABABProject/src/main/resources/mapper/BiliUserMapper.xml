@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abab.mapper.BiliUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.abab.entity.BiliUser">
+            <id property="userid" column="userId" jdbcType="BIGINT"/>
+            <result property="username" column="userName" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="userauthor" column="userAuthor" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="INTEGER"/>
+            <result property="birthday" column="birthday" jdbcType="DATE"/>
+            <result property="userrole" column="userRole" jdbcType="INTEGER"/>
+            <result property="userautograph" column="userAutograph" jdbcType="VARCHAR"/>
+            <result property="useravatar" column="userAvatar" jdbcType="VARCHAR"/>
+            <result property="starttime" column="startTime" jdbcType="DATE"/>
+            <result property="endtime" column="endTime" jdbcType="DATE"/>
+            <result property="fans" column="fans" jdbcType="BIGINT"/>
+            <result property="memo" column="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        userId,userName,password,
+        userAuthor,phone,gender,
+        birthday,userRole,userAutograph,
+        userAvatar,startTime,endTime,
+        fans,memo
+    </sql>
+</mapper>

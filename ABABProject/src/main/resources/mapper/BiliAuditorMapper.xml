@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abab.mapper.BiliAuditorMapper">
+
+    <resultMap id="BaseResultMap" type="com.abab.entity.BiliAuditor">
+            <id property="auditorid" column="auditorId" jdbcType="BIGINT"/>
+            <result property="auditorname" column="auditorName" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="auditorauthor" column="auditorAuthor" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="INTEGER"/>
+            <result property="birthday" column="birthday" jdbcType="DATE"/>
+            <result property="auditorrole" column="auditorRole" jdbcType="INTEGER"/>
+            <result property="auditoravatar" column="auditorAvatar" jdbcType="VARCHAR"/>
+            <result property="memo" column="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        auditorId,auditorName,password,
+        auditorAuthor,phone,gender,
+        birthday,auditorRole,auditorAvatar,
+        memo
+    </sql>
+</mapper>

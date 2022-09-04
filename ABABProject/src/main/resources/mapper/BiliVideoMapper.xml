@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abab.mapper.BiliVideoMapper">
+
+    <resultMap id="BaseResultMap" type="com.abab.entity.BiliVideo">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="videoid" column="videoId" jdbcType="VARCHAR"/>
+            <result property="videotitle" column="videoTitle" jdbcType="VARCHAR"/>
+            <result property="videointrbriefing" column="videoIntrbriefing" jdbcType="VARCHAR"/>
+            <result property="thumbs" column="thumbs" jdbcType="BIGINT"/>
+            <result property="collection" column="collection" jdbcType="BIGINT"/>
+            <result property="coin" column="coin" jdbcType="BIGINT"/>
+            <result property="forwarding" column="forwarding" jdbcType="BIGINT"/>
+            <result property="bullet" column="bullet" jdbcType="BIGINT"/>
+            <result property="comment" column="comment" jdbcType="BIGINT"/>
+            <result property="uploadtime" column="uploadtime" jdbcType="DATE"/>
+            <result property="uploaderid" column="uploaderId" jdbcType="BIGINT"/>
+            <result property="videopath" column="videoPath" jdbcType="VARCHAR"/>
+            <result property="auditingid" column="auditingID" jdbcType="INTEGER"/>
+            <result property="grounding" column="grounding" jdbcType="INTEGER"/>
+            <result property="coverimage" column="coverImage" jdbcType="VARCHAR"/>
+            <result property="memo" column="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,videoId,videoTitle,
+        videoIntrbriefing,thumbs,collection,
+        coin,forwarding,bullet,
+        comment,uploadtime,uploaderId,
+        videoPath,auditingID,grounding,
+        coverImage,memo
+    </sql>
+</mapper>

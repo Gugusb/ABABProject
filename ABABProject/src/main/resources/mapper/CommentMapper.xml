@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abab.mapper.CommentMapper">
+
+    <resultMap id="BaseResultMap" type="com.abab.entity.BiliComment">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="userid" column="userId" jdbcType="BIGINT"/>
+            <result property="videoid" column="videoId" jdbcType="VARCHAR"/>
+            <result property="commenttime" column="commentTime" jdbcType="TIMESTAMP"/>
+            <result property="memo" column="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,content,userId,
+        videoId,commentTime,memo
+    </sql>
+</mapper>
