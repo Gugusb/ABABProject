@@ -35,7 +35,7 @@ public class Controller_User {
         user = biliUserService.getOne(queryWrapper);
 
         if(user==null){
-            return ServerResponse.createByErrorMessage("无此用户！");
+            serverResponse = ServerResponse.createByErrorMessage("无此用户！");
         }else{
             if(user.getPassword().equals(biliUser.getPassword())){
                 serverResponse = ServerResponse.createRespBySuccess(user);
