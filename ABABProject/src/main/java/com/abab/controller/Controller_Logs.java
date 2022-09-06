@@ -4,6 +4,7 @@ import com.abab.common.ServerResponse;
 import com.abab.entity.BiliAuditor;
 import com.abab.entity.BiliDictionary;
 import com.abab.entity.BiliLogs;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,11 +16,14 @@ import java.util.List;
 
 @RestController
 public class Controller_Logs {
+    //默认只能由审核员查看(Auditor权限为2)
 
     @RequestMapping(value = "/logs/getalllogs", method = RequestMethod.POST)
     public ServerResponse<List<BiliLogs>> getAllLogs(HttpSession httpSession,
                                                      @RequestParam(defaultValue = "1") Integer pageIndex,
                                                      @RequestParam(defaultValue = "5") Integer pageSize){
+
+
         return null;
     }
 

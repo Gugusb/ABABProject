@@ -14,4 +14,6 @@ public class ConstUtil {
     public static String NOTALLOW_EMPTY = "不允许为空";
     public static String OVERLIMITED_LENGTH = "长度超限";
     public static String UNROLE="无权限";
+    public static String RELOGIN="已登录";
+    public static Integer ADMIN_ROLE=2;
 }
