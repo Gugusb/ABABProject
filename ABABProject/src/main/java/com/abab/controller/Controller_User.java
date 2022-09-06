@@ -33,12 +33,12 @@ public class Controller_User {
         user = biliUserService.getOne(queryWrapper);
 
         if(user==null){
-            return ServerResponse.createByErrorMessage("无此用户！");
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }else{
             if(user.getPassword().equals(biliUser.getPassword())){
                 return ServerResponse.createRespBySuccess(user);
             }else{
-                return ServerResponse.createByErrorMessage("密码错误！");
+                return ServerResponse.createByErrorMessage(ConstUtil.WRONG_PASSWORD);
             }
         }
     }
@@ -64,7 +64,7 @@ public class Controller_User {
         l.add(new Pair<>(biliUser.getUseravatar(), "用户头像图片"));
         for (Pair<Object, String> p : l){
             if(p.getFirst() == null){
-                return ServerResponse.createByErrorMessage(p.getSecond() + "不能为空！");
+                return ServerResponse.createByErrorMessage(p.getSecond() + ConstUtil.NOTALLOW_EMPTY);
             }
         }
 
@@ -80,7 +80,7 @@ public class Controller_User {
         for (Pair<Object, Integer> p : Legality){
             if(p.getFirst() != null){
                 if(p.getFirst().toString().length() >= p.getSecond()){
-                    return ServerResponse.createByErrorMessage(p.getSecond() + p.getFirst().toString() + "长度超限！");
+                    return ServerResponse.createByErrorMessage(p.getSecond() + p.getFirst().toString() + ConstUtil.OVERLIMITED_LENGTH);
                 }
             }
         }
@@ -123,9 +123,9 @@ public class Controller_User {
     @RequestMapping(value = "/user/getusernumber", method = RequestMethod.POST)
     public ServerResponse<Long> getUserNumber(HttpSession httpSession){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.ADMIN) == null ||
-                httpSession.getAttribute(ConstUtil.ADMIN) == ""){
-            return ServerResponse.createByErrorMessage("未查询到管理员权限");
+        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
+                httpSession.getAttribute(ConstUtil.STAFF) == ""){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
         return ServerResponse.createRespBySuccess(biliUserService.count());
     }
@@ -137,7 +137,7 @@ public class Controller_User {
         //权限查看
         if(httpSession.getAttribute(ConstUtil.ADMIN) == null ||
                 httpSession.getAttribute(ConstUtil.ADMIN) == ""){
-            return ServerResponse.createByErrorMessage("未查询到管理员权限");
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
 
         PageHelper.startPage(pageIndex, pageSize);
@@ -150,26 +150,114 @@ public class Controller_User {
         //权限查看
         if(httpSession.getAttribute(ConstUtil.USER) == null ||
                 httpSession.getAttribute(ConstUtil.USER) == ""){
-            return ServerResponse.createByErrorMessage("未查询登陆状态");
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
         }
 
         BiliUser biliUser = (BiliUser) httpSession.getAttribute(ConstUtil.USER);
         return ServerResponse.createRespBySuccess(biliUser);
     }
 
+    private ServerResponse<BiliUser> getUserInfoByIdService(BiliUser biliUser){
+        BiliUser user = null;
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("userid", biliUser.getUserid());
+        user = biliUserService.getOne(queryWrapper);
+
+        if(user == null){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }else {
+            return ServerResponse.createRespBySuccess(user);
+        }
+    }
+
     @RequestMapping(value = "/user/getuserinfobyid", method = RequestMethod.POST)
     public ServerResponse<BiliUser> getUserInfoById(HttpSession httpSession, BiliUser biliUser){
-        return null;
+        //权限查看
+        if(httpSession.getAttribute(ConstUtil.USER) == null ||
+                httpSession.getAttribute(ConstUtil.USER) == ""){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+
+        ServerResponse<BiliUser> serverResponse = getUserInfoByIdService(biliUser);
+        if(serverResponse.isSuccess()){
+            return serverResponse;
+        }else{
+            return serverResponse;
+        }
+    }
+
+    private ServerResponse<BiliUser> updateUserInfoService(BiliUser biliUser){
+        BiliUser user = null;
+        //检查用户id是否为空
+        if(biliUser.getUserid() == null){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        //检查用户是否存在
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("userid", biliUser.getUserid());
+        user = biliUserService.getOne(queryWrapper);
+
+        if(user == null){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }else {
+            //更新数据库
+            biliUserService.updateById(biliUser);
+            return ServerResponse.createRespBySuccess(biliUser);
+        }
     }
 
     @RequestMapping(value = "/user/updateuserinfo", method = RequestMethod.POST)
     public ServerResponse<BiliUser> updateUserInfo(HttpSession httpSession, BiliUser biliUser){
-        return null;
+        //权限查看
+        if(httpSession.getAttribute(ConstUtil.USER) == null ||
+                httpSession.getAttribute(ConstUtil.USER) == ""){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+
+        ServerResponse<BiliUser> serverResponse = updateUserInfoService(biliUser);
+        if(serverResponse.isSuccess()){
+
+        }else {
+
+        }
+        return serverResponse;
+    }
+
+    private ServerResponse<String> cancelUserService(BiliUser biliUser){
+        BiliUser user = null;
+        //检查用户id是否为空
+        if(biliUser.getUserid() == null){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        //检查用户是否存在
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("userid", biliUser.getUserid());
+        user = biliUserService.getOne(queryWrapper);
+
+        if(user == null){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }else {
+            //更新数据库
+            biliUserService.removeById(biliUser);
+            return ServerResponse.createRespBySuccess();
+        }
     }
 
     @RequestMapping(value = "/user/canceluser", method = RequestMethod.POST)
-    public ServerResponse<String> cancelUser(HttpSession httpSession){
-        return null;
+    public ServerResponse<String> cancelUser(HttpSession httpSession, BiliUser biliUser){
+        //权限查看
+        if(httpSession.getAttribute(ConstUtil.USER) == null ||
+                httpSession.getAttribute(ConstUtil.USER) == ""){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+
+        ServerResponse<String> serverResponse = cancelUserService(biliUser);
+        if(serverResponse.isSuccess()){
+
+        }else{
+
+        }
+        return serverResponse;
     }
 
 
