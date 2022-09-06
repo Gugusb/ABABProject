@@ -29,7 +29,6 @@ public class Controller_Auditor {
 
         List<BiliAuditor> listAuditor = null;
 
-
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("auditorname", biliAuditor.getAuditorname());
         listAuditor = biliAuditorService.list(queryWrapper);

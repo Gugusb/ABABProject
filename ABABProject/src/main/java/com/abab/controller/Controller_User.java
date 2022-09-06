@@ -173,9 +173,12 @@ public class Controller_User {
     @RequestMapping(value = "/user/getuserinfobyid", method = RequestMethod.POST)
     public ServerResponse<BiliUser> getUserInfoById(HttpSession httpSession, BiliUser biliUser){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.USER) == null ||
-                httpSession.getAttribute(ConstUtil.USER) == ""){
-            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
+                httpSession.getAttribute(ConstUtil.STAFF) == ""){
+            if(httpSession.getAttribute(ConstUtil.USER) == null ||
+                    httpSession.getAttribute(ConstUtil.USER) == ""){
+                return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+            }
         }
 
         ServerResponse<BiliUser> serverResponse = getUserInfoByIdService(biliUser);

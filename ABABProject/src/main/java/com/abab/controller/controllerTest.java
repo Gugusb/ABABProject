@@ -36,10 +36,7 @@ public class controllerTest {
      */
     @RequestMapping(value = "/test/getpeople", method = RequestMethod.POST)
     public Object getone(BiliUser biliUser){
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("username", biliUser.getUsername());
-
-        return biliUserService.list(queryWrapper);
+        return biliUserService.getById(biliUser);
     }
 
     @RequestMapping(value = "/test/twoelem", method = RequestMethod.POST)
