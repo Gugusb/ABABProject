@@ -102,7 +102,7 @@ public class Controller_Auditor {
             serverResponse=ServerResponse.createByErrorMessage("用户昵称" + ConstUtil.NOTALLOW_EMPTY);
         } else if(!(biliAuditor.getGender() == ConstUtil.GINDER_MALE || biliAuditor.getGender() == ConstUtil.GINDER_FELMALE)){
             serverResponse=ServerResponse.createByErrorMessage("用户性别" + ConstUtil.NOTALLOW_EMPTY);
-        } else if(!(biliAuditor.getAuditorrole() == ConstUtil.STAFF_ROLE_INDEX || biliAuditor.getAuditorrole() == ConstUtil.ADMIN_ROLE_INDEX)){
+        } else if(!(biliAuditor.getAuditorrole() == ConstUtil.STAFF_ROLE || biliAuditor.getAuditorrole() == ConstUtil.ADMIN_ROLE)){
             serverResponse=ServerResponse.createByErrorMessage("员工角色" + ConstUtil.NOTALLOW_EMPTY);
         }else if(EmptyJudger.isEmpty(biliAuditor.getBirthday())){
             serverResponse=ServerResponse.createByErrorMessage("生日" + ConstUtil.NOTALLOW_EMPTY);
@@ -208,7 +208,7 @@ public class Controller_Auditor {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE){
                 serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
             }
             else{
@@ -233,7 +233,7 @@ public class Controller_Auditor {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE){
                 serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
             }
             else{
@@ -257,7 +257,7 @@ public class Controller_Auditor {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE){
                 serverResponse = getAuditorsByAuthorService(biliAuditor);
             }
             else{
