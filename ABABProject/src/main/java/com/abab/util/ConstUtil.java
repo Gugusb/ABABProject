@@ -16,4 +16,10 @@ public class ConstUtil {
     public static String UNROLE="无权限";
     public static String RELOGIN="已登录";
     public static Integer ADMIN_ROLE=2;
+    public static String USER_ROLE = "用户角色";
+    public static String STAFF_ROLE = "员工角色";
+    public static String AUDIT_STATE = "审核状态";
+    public static String SHELF_STATE = "上架状态";
+    public static String WRONG_MEMO = "错误的Dictionary描述";
+
 }

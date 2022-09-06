@@ -153,9 +153,7 @@ public class Controller_Video {
         return serverResponse;
     }
 
-    private ServerResponse<List<BiliVideo>> getVideosByUserIdService(BiliUser biliUser,
-                                                                     @RequestParam(defaultValue = "1") Integer pageIndex,
-                                                                     @RequestParam(defaultValue = "5") Integer pageSize){
+    private ServerResponse<List<BiliVideo>> getVideosByUserIdService(BiliUser biliUser, Integer pageIndex, Integer pageSize){
         if(EmptyJudger.isEmpty(biliUser.getUserid())){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }else{
@@ -179,22 +177,82 @@ public class Controller_Video {
         if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
+        ServerResponse<List<BiliVideo>> serverResponse = getVideosByUserIdService(biliUser, pageIndex, pageSize);
+        if(serverResponse.isSuccess()){
 
-        return null;
+        }else{
+
+        }
+        return serverResponse;
+    }
+
+    private ServerResponse<List<BiliVideo>> getPreparedVideosService(Integer pageIndex, Integer pageSize){
+        PageHelper.startPage(pageIndex, pageSize);
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("grounding", 9);
+
+        List<BiliVideo> list = biliVideoService.list(queryWrapper);
+
+        return ServerResponse.createRespBySuccess(list);
     }
 
     @RequestMapping(value = "/video/getpreparedvideos", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getPreparedVideos(HttpSession httpSession,
                                                              @RequestParam(defaultValue = "1") Integer pageIndex,
                                                              @RequestParam(defaultValue = "5") Integer pageSize){
-        return null;
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<List<BiliVideo>> serverResponse = getPreparedVideosService(pageIndex, pageSize);
+        if(serverResponse.isSuccess()){
+
+        }else{
+
+        }
+        return serverResponse;
+    }
+
+    private ServerResponse<List<BiliVideo>> getShelvedVideosService(Integer pageIndex, Integer pageSize){
+        PageHelper.startPage(pageIndex, pageSize);
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("grounding", 8);
+
+        List<BiliVideo> list = biliVideoService.list(queryWrapper);
+
+        return ServerResponse.createRespBySuccess(list);
     }
 
     @RequestMapping(value = "/video/getshelvedvideos", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getShelvedVideos(HttpSession httpSession,
                                                             @RequestParam(defaultValue = "1") Integer pageIndex,
                                                             @RequestParam(defaultValue = "5") Integer pageSize){
-        return null;
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<List<BiliVideo>> serverResponse = getShelvedVideosService(pageIndex, pageSize);
+        if(serverResponse.isSuccess()){
+
+        }else{
+
+        }
+        return serverResponse;
+    }
+
+    private ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary, Integer pageIndex, Integer pageSize){
+        //检查是否是相关描述
+        if(dictionary.getMemo() != ConstUtil.AUDIT_STATE){
+            return ServerResponse.createByErrorMessage(ConstUtil.WRONG_MEMO);
+        }
+        //查找
+        PageHelper.startPage(pageIndex, pageSize);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("auditing", dictionary.getKey());
+
+        List<BiliVideo> list = biliVideoService.list(queryWrapper);
+
+        return ServerResponse.createRespBySuccess(list);
     }
 
     @RequestMapping(value = "/video/getvideosbyauditstate", method = RequestMethod.POST)
@@ -202,7 +260,31 @@ public class Controller_Video {
                                                                 BiliDictionary dictionary,
                                                                 @RequestParam(defaultValue = "1") Integer pageIndex,
                                                                 @RequestParam(defaultValue = "5") Integer pageSize){
-        return null;
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<List<BiliVideo>> serverResponse = getVideosByAuditStateService(dictionary, pageIndex, pageSize);
+        if(serverResponse.isSuccess()){
+
+        }else{
+
+        }
+        return serverResponse;
+    }
+
+    private ServerResponse<List<BiliVideo>> getVideosByAVService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize){
+        //检查是否是相关描述
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        //查找
+        PageHelper.startPage(pageIndex, pageSize);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("videoid", biliVideo.getVideoid());
+
+        List<BiliVideo> list = biliVideoService.list(queryWrapper);
+
+        return ServerResponse.createRespBySuccess(list);
     }
 
     @RequestMapping(value = "/video/getvideosbyav", method = RequestMethod.POST)
@@ -210,7 +292,31 @@ public class Controller_Video {
                                                          BiliVideo biliVideo,
                                                          @RequestParam(defaultValue = "1") Integer pageIndex,
                                                          @RequestParam(defaultValue = "5") Integer pageSize){
-        return null;
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<List<BiliVideo>> serverResponse = getVideosByAVService(biliVideo, pageIndex, pageSize);
+        if(serverResponse.isSuccess()){
+
+        }else{
+
+        }
+        return serverResponse;
+    }
+
+    private ServerResponse<List<BiliVideo>> getVideosByTitleService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize){
+        //检查是否是相关描述
+        if(EmptyJudger.isEmpty(biliVideo.getVideotitle())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        //查找
+        PageHelper.startPage(pageIndex, pageSize);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.like("videotitle", biliVideo.getVideotitle());
+
+        List<BiliVideo> list = biliVideoService.list(queryWrapper);
+
+        return ServerResponse.createRespBySuccess(list);
     }
 
     @RequestMapping(value = "/video/getvideosbytitle", method = RequestMethod.POST)
@@ -218,6 +324,15 @@ public class Controller_Video {
                                                             BiliVideo biliVideo,
                                                             @RequestParam(defaultValue = "1") Integer pageIndex,
                                                             @RequestParam(defaultValue = "5") Integer pageSize){
-        return null;
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<List<BiliVideo>> serverResponse = getVideosByTitleService(biliVideo, pageIndex, pageSize);
+        if(serverResponse.isSuccess()){
+
+        }else{
+
+        }
+        return serverResponse;
     }
 }
