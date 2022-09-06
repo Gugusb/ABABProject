@@ -125,7 +125,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.getAllLogsService();
             }
             else{
@@ -148,7 +148,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.getLogsByStaffIdService(biliAuditor);
             }
             else{
@@ -170,7 +170,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.getLogsByOperationService(biliDictionary);
             }
             else{
@@ -192,7 +192,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.addLogsService(biliLogs);
             }
             else{
