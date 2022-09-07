@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -93,7 +94,7 @@ public class Controller_Logs {
 
     }
 
-    private ServerResponse<List<BiliLogs>> addLogsService(BiliLogs biliLogs){
+    public ServerResponse<List<BiliLogs>> addLogsService(BiliLogs biliLogs){
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(EmptyJudger.isEmpty(biliLogs.getUserid())){
@@ -125,7 +126,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.getAllLogsService();
             }
             else{
@@ -148,7 +149,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.getLogsByStaffIdService(biliAuditor);
             }
             else{
@@ -170,7 +171,7 @@ public class Controller_Logs {
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse =this.getLogsByOperationService(biliDictionary);
             }
             else{
@@ -185,24 +186,34 @@ public class Controller_Logs {
     }
 
     @RequestMapping(value = "/logs/addlogs", method = RequestMethod.POST)
-    public ServerResponse<List<BiliLogs>> addLogs(HttpSession httpSession,
-                                                  BiliLogs biliLogs,
-                                                  @RequestParam(defaultValue = "1") Integer pageIndex,
-                                                  @RequestParam(defaultValue = "5") Integer pageSize){
+    public ServerResponse<List<BiliLogs>> addLogs(HttpSession httpSession, BiliLogs biliLogs){
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE){
-                serverResponse =this.addLogsService(biliLogs);
-            }
-            else{
-                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
-            }
+        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
+            biliLogs.setUserid(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorid());
+            biliLogs.setUsername(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorname());
+            biliLogs.setOptime(new Date());
+            serverResponse =this.addLogsService(biliLogs);
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
         }
+        return serverResponse;
+    }
 
+    public ServerResponse<List<BiliLogs>> addLogsForBack(HttpSession httpSession, String message){
+        ServerResponse<List<BiliLogs>> serverResponse = null;
+        BiliLogs biliLogs = new BiliLogs();
+        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
+            biliLogs.setUserid(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorid());
+            biliLogs.setUsername(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorname());
+            biliLogs.setOptime(new Date());
+            biliLogs.setMatter(message);
+            serverResponse =this.addLogsService(biliLogs);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
+        }
         return serverResponse;
     }
 }
