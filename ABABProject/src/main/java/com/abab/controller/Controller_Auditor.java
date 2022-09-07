@@ -24,6 +24,9 @@ public class Controller_Auditor {
     @Autowired
     BiliAuditorService biliAuditorService;
 
+    @Autowired
+    Controller_Logs controller_logs;
+
     private ServerResponse<List<BiliAuditor>> getAuditorsByNameService(BiliAuditor biliAuditor){
         //业务层逻辑
         ServerResponse<List<BiliAuditor>> serverResponse = null;
@@ -162,6 +165,10 @@ public class Controller_Auditor {
 
         serverResponse = registerService(biliAuditor);
 
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"增加一条管理员信息");
+        }
+
         return serverResponse;
     }
 
@@ -179,8 +186,11 @@ public class Controller_Auditor {
 
         if(serverResponse.isSuccess()){
             httpSession.setAttribute(ConstUtil.STAFF, serverResponse.getData());
-            if(biliAuditor.getAuditorrole()== ConstUtil.ADMIN_ROLE_INDEX)
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorrole() == ConstUtil.ADMIN_ROLE_INDEX)
                 httpSession.setAttribute(ConstUtil.ADMIN, serverResponse.getData());
+            else{
+                System.out.println("该用户是员工而非管理员");
+            }
             httpSession.setMaxInactiveInterval(30*60);
         }
 
@@ -219,6 +229,10 @@ public class Controller_Auditor {
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
         }
 
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"通过ID查看相关管理员信息");
+        }
+
         return serverResponse;
     }
 
@@ -244,6 +258,10 @@ public class Controller_Auditor {
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
         }
 
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"通过姓名查看相关管理员信息");
+        }
+
         return serverResponse;
     }
 
@@ -257,15 +275,14 @@ public class Controller_Auditor {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse = getAuditorsByAuthorService(biliAuditor);
-            }
-            else{
-                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
-            }
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
+        }
+
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"通过昵称查看相关管理员信息");
         }
 
         return serverResponse;
