@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.lang.annotation.ElementType;
 import java.util.List;
 
 @RestController
@@ -24,28 +25,37 @@ public class Controller_Bullet {
     @Autowired
     BulletService bulletService;
 
-    public ServerResponse<List<BiliBullet>> getBulletsByVideoIdService(BiliVideo biliVideo){
+    @Autowired
+    Controller_Logs controller_logs;
+
+    private ServerResponse<List<BiliBullet>> getBulletsByVideoIdService(BiliVideo biliVideo){
         ServerResponse<List<BiliBullet>> serverResponse=null;
 
         List<BiliBullet> biliBulletList=null;
 
-
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("auditorname", biliVideo.getVideoid());
-        biliBulletList = bulletService.list(queryWrapper);
-
-        if(EmptyJudger.isEmpty(biliBulletList)){
-            serverResponse=ServerResponse.createRespBySuccess(biliBulletList);
-
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            serverResponse =ServerResponse.createByErrorMessage("videoid" + ConstUtil.NOTALLOW_EMPTY);
         }
         else{
-            serverResponse=ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("videoid", biliVideo.getVideoid());
+            biliBulletList = bulletService.list(queryWrapper);
+
+            if(!EmptyJudger.isEmpty(biliBulletList)){
+                serverResponse=ServerResponse.createRespBySuccess(biliBulletList);
+
+            }
+            else{
+                serverResponse=ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+                System.out.println("当前videoid："+biliVideo.getVideoid());
+
+            }
         }
 
         return serverResponse;
     }
 
-    public ServerResponse<BiliBullet> postBulletService(BiliBullet biliBullet){
+    private ServerResponse<BiliBullet> postBulletService(BiliBullet biliBullet){
         ServerResponse<BiliBullet> serverResponse=null;
 
         if(EmptyJudger.isEmpty(biliBullet.getUserid())){
@@ -56,7 +66,7 @@ public class Controller_Bullet {
             serverResponse = ServerResponse.createByErrorMessage("弹幕文本" + ConstUtil.NOTALLOW_EMPTY);
         }else if(biliBullet.getContent().length()>200) {
             serverResponse = ServerResponse.createByErrorMessage("弹幕文本" + ConstUtil.OVERLIMITED_LENGTH);
-        }else if(biliBullet.getMemo().length()>200){
+        }else if(!EmptyJudger.isEmpty(biliBullet.getMemo())&&biliBullet.getMemo().length()>200){
             serverResponse = ServerResponse.createByErrorMessage("弹幕备注" + ConstUtil.OVERLIMITED_LENGTH);
         }else{
             bulletService.save(biliBullet);
@@ -67,7 +77,7 @@ public class Controller_Bullet {
         return serverResponse;
     }
 
-    public ServerResponse<BiliBullet> deleteButtleService(BiliBullet biliBullet){
+    private ServerResponse<BiliBullet> deleteButtleService(BiliBullet biliBullet){
         ServerResponse<BiliBullet> serverResponse=null;
 
         if(EmptyJudger.isEmpty(biliBullet.getId())){
@@ -95,6 +105,10 @@ public class Controller_Bullet {
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"通过视频ID查看相关弹幕");
         }
 
         return serverResponse;
@@ -131,6 +145,9 @@ public class Controller_Bullet {
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
 
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"删除一条弹幕");
+        }
 
         return serverResponse;
     }

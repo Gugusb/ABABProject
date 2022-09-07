@@ -8,6 +8,7 @@ import com.abab.service.Log4jService;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -123,6 +124,7 @@ public class Controller_Logs {
     public ServerResponse<List<BiliLogs>> getAllLogs(HttpSession httpSession,
                                                      @RequestParam(defaultValue = "1") Integer pageIndex,
                                                      @RequestParam(defaultValue = "5") Integer pageSize){
+        PageHelper.startPage(pageIndex, pageSize);
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
@@ -146,6 +148,8 @@ public class Controller_Logs {
                                                            BiliAuditor biliAuditor,
                                                            @RequestParam(defaultValue = "1") Integer pageIndex,
                                                            @RequestParam(defaultValue = "5") Integer pageSize){
+        PageHelper.startPage(pageIndex, pageSize);
+
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
@@ -168,6 +172,8 @@ public class Controller_Logs {
                                                              BiliDictionary biliDictionary,
                                                              @RequestParam(defaultValue = "1") Integer pageIndex,
                                                              @RequestParam(defaultValue = "5") Integer pageSize){
+        PageHelper.startPage(pageIndex, pageSize);
+
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
@@ -186,19 +192,17 @@ public class Controller_Logs {
     }
 
     @RequestMapping(value = "/logs/addlogs", method = RequestMethod.POST)
-    public ServerResponse<List<BiliLogs>> addLogs(HttpSession httpSession,
-                                                  BiliLogs biliLogs,
-                                                  @RequestParam(defaultValue = "1") Integer pageIndex,
-                                                  @RequestParam(defaultValue = "5") Integer pageSize){
+    public ServerResponse<List<BiliLogs>> addLogs(HttpSession httpSession, BiliLogs biliLogs){
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
-                serverResponse =this.addLogsService(biliLogs);
-            }
-            else{
-                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
-            }
+        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
+            biliLogs.setUserid(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorid());
+            biliLogs.setUsername(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorname());
+            biliLogs.setOptime(new Date());
+
+
+            serverResponse =this.addLogsService(biliLogs);
+
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
@@ -222,6 +226,5 @@ public class Controller_Logs {
         }
         return serverResponse;
     }
-
 
 }

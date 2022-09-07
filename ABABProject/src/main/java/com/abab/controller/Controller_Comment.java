@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -25,26 +26,34 @@ public class Controller_Comment {
     @Autowired
     CommentService commentService;
 
-    public ServerResponse<List<BiliComment>> getCommentsByVideoIdService(BiliVideo biliVideo){
+    @Autowired
+    Controller_Logs controller_logs;
+
+    private ServerResponse<List<BiliComment>> getCommentsByVideoIdService(BiliVideo biliVideo){
         ServerResponse<List<BiliComment>> serverResponse = null;
 
         List<BiliComment> biliCommentList=null;
 
-        QueryWrapper qe = new QueryWrapper();
-        qe.eq("videoid" , biliVideo.getVideoid());
-        biliCommentList=commentService.list(qe);
-
-        if(!EmptyJudger.isEmpty(biliCommentList)){
-            serverResponse = ServerResponse.createRespBySuccess(biliCommentList);
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            serverResponse =ServerResponse.createByErrorMessage("videoid" + ConstUtil.NOTALLOW_EMPTY);
         }
         else{
-            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+            QueryWrapper qe = new QueryWrapper();
+            qe.eq("videoid" , biliVideo.getVideoid());
+            biliCommentList=commentService.list(qe);
+
+            if(!EmptyJudger.isEmpty(biliCommentList)){
+                serverResponse = ServerResponse.createRespBySuccess(biliCommentList);
+            }
+            else{
+                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+            }
         }
 
         return serverResponse;
     }
 
-    public ServerResponse<BiliComment> postCommentService(BiliComment biliComment){
+    private ServerResponse<BiliComment> postCommentService(BiliComment biliComment){
         ServerResponse<BiliComment> serverResponse = null;
 
         if(EmptyJudger.isEmpty(biliComment.getUserid())){
@@ -66,7 +75,7 @@ public class Controller_Comment {
         return serverResponse;
     }
 
-    public ServerResponse<BiliComment> deleteCommentService(BiliComment biliComment){
+    private ServerResponse<BiliComment> deleteCommentService(BiliComment biliComment){
         //按照评论id删除评论
         ServerResponse<BiliComment> serverResponse = null;
 
@@ -104,6 +113,10 @@ public class Controller_Comment {
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
 
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"通过视频ID查看相关评论");
+        }
+
         return serverResponse;
     }
 
@@ -115,6 +128,8 @@ public class Controller_Comment {
 
             //将用户id赋予评论对象
             biliComment.setUserid(((BiliUser)httpSession.getAttribute(ConstUtil.USER)).getUserid());
+            //赋予当前时间
+            biliComment.setCommenttime(new Date());
 
             serverResponse = postCommentService(biliComment);
         }
@@ -134,6 +149,10 @@ public class Controller_Comment {
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+
+        if(serverResponse.isSuccess()){
+            controller_logs.addLogsForBack(httpSession,"删除一条评论");
         }
 
         return serverResponse;
