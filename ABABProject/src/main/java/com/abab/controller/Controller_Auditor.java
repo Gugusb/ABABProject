@@ -4,10 +4,7 @@ import com.abab.common.ServerResponse;
 import com.abab.entity.BiliAuditor;
 import com.abab.entity.BiliUser;
 import com.abab.service.BiliAuditorService;
-import com.abab.service.impl.BiliAuditorServiceImpl;
 import com.abab.util.ConstUtil;
-import com.abab.util.EmptyJudger;
-import com.abab.util.LogAdder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,21 +18,148 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-public class Controller_Auditor extends LogAdder {
+public class Controller_Auditor {
 
     @Autowired
     BiliAuditorService biliAuditorService;
 
+    public ServerResponse<List<BiliAuditor>> getAuditorsByNameService(BiliAuditor biliAuditor){
+        //业务层逻辑
+        ServerResponse<List<BiliAuditor>> serverResponse = null;
+
+        List<BiliAuditor> listAuditor = null;
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("auditorname", biliAuditor.getAuditorname());
+        listAuditor = biliAuditorService.list(queryWrapper);
+
+        if(listAuditor!=null){
+            if(listAuditor.size()==0){
+                serverResponse = ServerResponse.createByErrorMessage("无此用户");
+            }
+            else
+                serverResponse = ServerResponse.createRespBySuccess(listAuditor);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage("当前无数据");
+        }
+
+        return serverResponse;
+    }
+
+    public ServerResponse<List<BiliAuditor>> getAuditorsByIdService(BiliAuditor biliAuditor){
+        //业务层逻辑
+        ServerResponse<List<BiliAuditor>> serverResponse = null;
+        List<BiliAuditor> listAuditor = null;
+
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("auditorid", biliAuditor.getAuditorid());
+        listAuditor = biliAuditorService.list(queryWrapper);
+
+        if(listAuditor!=null){
+            if(listAuditor.size()==0){
+                serverResponse = ServerResponse.createByErrorMessage("找不到此用户");
+            }
+            else
+                serverResponse = ServerResponse.createRespBySuccess(listAuditor);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage("当前无数据");
+        }
+
+        return serverResponse;
+    }
+
+    public ServerResponse<List<BiliAuditor>> getAuditorsByAuthorService(BiliAuditor biliAuditor){
+        //业务层逻辑
+        ServerResponse<List<BiliAuditor>> serverResponse = null;
+        List<BiliAuditor> listAuditor = null;
+
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("auditorauthor", biliAuditor.getAuditorauthor());
+        listAuditor = biliAuditorService.list(queryWrapper);
+
+        if(listAuditor!=null){
+            serverResponse = ServerResponse.createRespBySuccess(listAuditor);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage("当前无数据");
+        }
+
+        return serverResponse;
+    }
+
+    public ServerResponse<BiliAuditor> registerService(BiliAuditor biliAuditor){
+        ServerResponse<BiliAuditor> serverResponse = null;
+
+        //业务层逻辑
+        if(biliAuditor.getAuditorname()==null||biliAuditor.getAuditorname()==""){
+            serverResponse=ServerResponse.createByErrorMessage("请填写用户名");
+        } else if(biliAuditor.getAuditorauthor()==null||biliAuditor.getAuditorauthor()==""){
+            serverResponse=ServerResponse.createByErrorMessage("请填写用户昵称");
+        } else if(!(biliAuditor.getGender()==1||biliAuditor.getGender()==2)){
+            serverResponse=ServerResponse.createByErrorMessage("请选择用户性别");
+        } else if(!(biliAuditor.getAuditorrole()==1||biliAuditor.getAuditorrole()==2)){
+            serverResponse=ServerResponse.createByErrorMessage("请选择员工角色");
+        }else if(biliAuditor.getBirthday()==null){
+            serverResponse=ServerResponse.createByErrorMessage("请填写生日");
+        }else if(biliAuditor.getAuditorname().length()>50){
+            serverResponse=ServerResponse.createByErrorMessage("用户名长度请不要超过50");
+        } else if(biliAuditor.getAuditorauthor().length()>50){
+            serverResponse=ServerResponse.createByErrorMessage("用户昵称长度请不要超过50");
+        } else if(biliAuditor.getPassword().length()>50){
+            serverResponse=ServerResponse.createByErrorMessage("用户密码长度请不要超过50");
+        }
+        else{
+            biliAuditorService.save(biliAuditor);//向db插入用户
+
+            serverResponse=ServerResponse.createRespBySuccess(biliAuditor);
+        }
+
+        return serverResponse;
+    }
+
+    public ServerResponse<BiliAuditor> loginService(BiliAuditor biliAuditor){
+        ServerResponse<BiliAuditor> serverResponse = null;
+        BiliAuditor Auditor = null;
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("auditorid", biliAuditor.getAuditorid());
+        Auditor = biliAuditorService.getOne(queryWrapper);
+
+
+        if(Auditor==null){
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        else{
+            if(Auditor.getPassword().equals(biliAuditor.getPassword())){
+                serverResponse = ServerResponse.createRespBySuccess(Auditor);
+            }
+            else{
+                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.WRONG_PASSWORD);
+            }
+        }
+
+        return serverResponse;
+    }
+
+    public ServerResponse<Long> getAuditorNumberService(){
+        ServerResponse<Long> serverResponse=null;
+
+        Long num = biliAuditorService.count();
+
+        serverResponse=ServerResponse.createRespBySuccess(num);
+
+        return serverResponse;
+    }
 
     @RequestMapping(value = "/auditor/register", method = RequestMethod.POST)
     public ServerResponse<BiliAuditor> register(HttpSession httpSession, BiliAuditor biliAuditor){
         ServerResponse<BiliAuditor> serverResponse = null;
 
-        serverResponse = biliAuditorService.registerService(biliAuditor);
-
-        if(serverResponse.isSuccess()){
-            super.addLogsForBack(httpSession,"增加一条管理员信息");
-        }
+        serverResponse = registerService(biliAuditor);
 
         return serverResponse;
     }
@@ -46,7 +170,7 @@ public class Controller_Auditor extends LogAdder {
 
         // 如果未登录
         if(httpSession.getAttribute(ConstUtil.ADMIN)==null&&httpSession.getAttribute(ConstUtil.STAFF)==null){
-            serverResponse = biliAuditorService.loginService(biliAuditor);
+            serverResponse = loginService(biliAuditor);
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.RELOGIN);
@@ -54,11 +178,8 @@ public class Controller_Auditor extends LogAdder {
 
         if(serverResponse.isSuccess()){
             httpSession.setAttribute(ConstUtil.STAFF, serverResponse.getData());
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorrole() == ConstUtil.ADMIN_ROLE_INDEX)
+            if(biliAuditor.getAuditorrole()== ConstUtil.ADMIN_ROLE_INDEX)
                 httpSession.setAttribute(ConstUtil.ADMIN, serverResponse.getData());
-            else{
-                System.out.println("该用户是员工而非管理员");
-            }
             httpSession.setMaxInactiveInterval(30*60);
         }
 
@@ -70,7 +191,7 @@ public class Controller_Auditor extends LogAdder {
         ServerResponse<Long> serverResponse=null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
-            serverResponse = biliAuditorService.getAuditorNumberService();
+            serverResponse = getAuditorNumberService();
         }
 
         return serverResponse;
@@ -86,19 +207,15 @@ public class Controller_Auditor extends LogAdder {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=2){
                 serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
             }
             else{
-                serverResponse = biliAuditorService.getAuditorsByIdService(biliAuditor);
+                serverResponse = getAuditorsByIdService(biliAuditor);
             }
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
-        }
-
-        if(serverResponse.isSuccess()){
-            super.addLogsForBack(httpSession,"通过ID查看相关管理员信息");
         }
 
         return serverResponse;
@@ -115,19 +232,15 @@ public class Controller_Auditor extends LogAdder {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=2){
                 serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
             }
             else{
-                serverResponse = biliAuditorService.getAuditorsByNameService(biliAuditor);
+                serverResponse = getAuditorsByNameService(biliAuditor);
             }
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
-        }
-
-        if(serverResponse.isSuccess()){
-            super.addLogsForBack(httpSession,"通过姓名查看相关管理员信息");
         }
 
         return serverResponse;
@@ -143,14 +256,15 @@ public class Controller_Auditor extends LogAdder {
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
         if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
-                serverResponse = biliAuditorService.getAuditorsByAuthorService(biliAuditor);
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=2){
+                serverResponse = getAuditorsByAuthorService(biliAuditor);
+            }
+            else{
+                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
+            }
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
-        }
-
-        if(serverResponse.isSuccess()){
-            super.addLogsForBack(httpSession,"通过昵称查看相关管理员信息");
         }
 
         return serverResponse;
