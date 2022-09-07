@@ -29,6 +29,9 @@ public class Controller_Video {
     @Autowired
     private BiliUserService biliUserService;
 
+    @Autowired
+    private Controller_Logs controller_logs;
+
     private ServerResponse<BiliVideo> openVideoService(BiliVideo biliVideo){
         if(biliVideo.getVideoid() == null){
             return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
@@ -73,6 +76,10 @@ public class Controller_Video {
     @RequestMapping(value = "/video/getvideobyid", method = RequestMethod.POST)
     public ServerResponse<BiliVideo> getVideoInfoById(HttpSession httpSession, BiliVideo biliVideo){
         ServerResponse<BiliVideo> serverResponse = getVideoInfoByIdService(biliVideo);
+        if(serverResponse.isSuccess()){
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "通过视频ID查询视频");
+        }
         return serverResponse;
     }
 
@@ -103,9 +110,8 @@ public class Controller_Video {
 
         ServerResponse<BiliVideo> serverResponse = updateVideoInfoService(biliVideo);
         if(serverResponse.isSuccess()){
-
-        }else {
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "更新视频信息");
         }
         return serverResponse;
     }
@@ -133,6 +139,10 @@ public class Controller_Video {
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
         ServerResponse<Long> serverResponse = getUnreviewedVideosNumberService();
+        if(serverResponse.isSuccess()){
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取未审核的视频数量");
+        }
         return serverResponse;
     }
 
@@ -150,6 +160,10 @@ public class Controller_Video {
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
         ServerResponse<Long> serverResponse = getReviewedVideosNumberService();
+        if(serverResponse.isSuccess()){
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取已审核视频数量");
+        }
         return serverResponse;
     }
 
@@ -179,9 +193,8 @@ public class Controller_Video {
         }
         ServerResponse<List<BiliVideo>> serverResponse = getVideosByUserIdService(biliUser, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "根据用户ID查询所有相关视频");
         }
         return serverResponse;
     }
@@ -206,9 +219,8 @@ public class Controller_Video {
         }
         ServerResponse<List<BiliVideo>> serverResponse = getPreparedVideosService(pageIndex, pageSize);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取所有待上架视频");
         }
         return serverResponse;
     }
@@ -233,16 +245,15 @@ public class Controller_Video {
         }
         ServerResponse<List<BiliVideo>> serverResponse = getShelvedVideosService(pageIndex, pageSize);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取所有已上架视频");
         }
         return serverResponse;
     }
 
     private ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary, Integer pageIndex, Integer pageSize){
         //检查是否是相关描述
-        if(dictionary.getMemo() != ConstUtil.AUDIT_STATE){
+        if(dictionary.getMemo() != ConstUtil.MEMO_AUDIT_STATE){
             return ServerResponse.createByErrorMessage(ConstUtil.WRONG_MEMO);
         }
         //查找
@@ -265,9 +276,8 @@ public class Controller_Video {
         }
         ServerResponse<List<BiliVideo>> serverResponse = getVideosByAuditStateService(dictionary, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "根据审核状态查找视频");
         }
         return serverResponse;
     }
@@ -297,9 +307,8 @@ public class Controller_Video {
         }
         ServerResponse<List<BiliVideo>> serverResponse = getVideosByAVService(biliVideo, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "根据AV号" + biliVideo.getVideoid() + "查询视频");
         }
         return serverResponse;
     }
@@ -329,9 +338,8 @@ public class Controller_Video {
         }
         ServerResponse<List<BiliVideo>> serverResponse = getVideosByTitleService(biliVideo, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "根据标题查询 " + biliVideo.getVideotitle() + " 视频");
         }
         return serverResponse;
     }
