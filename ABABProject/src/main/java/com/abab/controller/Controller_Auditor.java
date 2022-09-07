@@ -178,7 +178,7 @@ public class Controller_Auditor {
 
         if(serverResponse.isSuccess()){
             httpSession.setAttribute(ConstUtil.STAFF, serverResponse.getData());
-            if(biliAuditor.getAuditorrole()== ConstUtil.ADMIN_ROLE)
+            if(biliAuditor.getAuditorrole()== ConstUtil.ADMIN_ROLE_INDEX)
                 httpSession.setAttribute(ConstUtil.ADMIN, serverResponse.getData());
             httpSession.setMaxInactiveInterval(30*60);
         }

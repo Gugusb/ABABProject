@@ -18,10 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.crypto.Data;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @RestController
 public class Controller_User {
@@ -31,6 +28,9 @@ public class Controller_User {
 
     @Autowired
     BiliVideoService biliVideoService;
+
+    @Autowired
+    Controller_Logs controller_logs;
 
     /**
      * 登录服务
@@ -226,7 +226,12 @@ public class Controller_User {
                 httpSession.getAttribute(ConstUtil.STAFF) == ""){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
-        return ServerResponse.createRespBySuccess(biliUserService.count());
+        ServerResponse<Long> serverResponse = ServerResponse.createRespBySuccess(biliUserService.count());
+        if(serverResponse.isSuccess()){
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取用户数量");
+        }
+        return serverResponse;
     }
 
     /**
@@ -249,7 +254,14 @@ public class Controller_User {
 
         PageHelper.startPage(pageIndex, pageSize);
         List<BiliUser> arrayList = biliUserService.list();
-        return ServerResponse.createRespBySuccess(arrayList);
+
+        ServerResponse<List<BiliUser>> serverResponse = ServerResponse.createRespBySuccess(arrayList);
+
+        if(serverResponse.isSuccess()){
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取所有用户");
+        }
+        return serverResponse;
     }
 
     /**
@@ -267,7 +279,12 @@ public class Controller_User {
         }
 
         BiliUser biliUser = (BiliUser) httpSession.getAttribute(ConstUtil.USER);
-        return ServerResponse.createRespBySuccess(biliUser);
+        ServerResponse<BiliUser> serverResponse = ServerResponse.createRespBySuccess(biliUser);
+        if(serverResponse.isSuccess()){
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "获取用户信息");
+        }
+        return serverResponse;
     }
 
     /**
@@ -281,7 +298,6 @@ public class Controller_User {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("userid", biliUser.getUserid());
         user = biliUserService.getOne(queryWrapper);
-
         if(user == null){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }else {
@@ -309,10 +325,10 @@ public class Controller_User {
 
         ServerResponse<BiliUser> serverResponse = getUserInfoByIdService(biliUser);
         if(serverResponse.isSuccess()){
-            return serverResponse;
-        }else{
-            return serverResponse;
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "通过用户ID查询用户");
         }
+        return serverResponse;
     }
 
     /**
@@ -358,9 +374,8 @@ public class Controller_User {
 
         ServerResponse<BiliUser> serverResponse = updateUserInfoService(biliUser);
         if(serverResponse.isSuccess()){
-
-        }else {
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "更新用户信息");
         }
         return serverResponse;
     }
@@ -401,19 +416,82 @@ public class Controller_User {
     @RequestMapping(value = "/user/canceluser", method = RequestMethod.POST)
     public ServerResponse<String> cancelUser(HttpSession httpSession, BiliUser biliUser){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.USER) == null ||
-                httpSession.getAttribute(ConstUtil.USER) == ""){
+        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
+                httpSession.getAttribute(ConstUtil.STAFF) == ""){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
 
         ServerResponse<String> serverResponse = cancelUserService(biliUser);
         if(serverResponse.isSuccess()){
-
-        }else{
-
+            //写入日志
+            controller_logs.addLogsForBack(httpSession, "注销用户");
         }
         return serverResponse;
     }
 
+    private ServerResponse<BiliUser> toBeVIPService(BiliUser biliUser, Date startTime, Integer duration){
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(biliUser.getUserrole() >= 2){
+            return ServerResponse.createByErrorMessage("用户已经是大会员");
+        }
+        //更新用户大会员信息
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startTime);
+        calendar.add(Calendar.DAY_OF_YEAR, duration);
+        biliUser.setUserrole(2);
+        biliUser.setStarttime(startTime);
+        biliUser.setEndtime(calendar.getTime());
+
+        biliUserService.updateById(biliUser);
+        return ServerResponse.createRespBySuccess(biliUser);
+    }
+
+    @RequestMapping(value = "/user/tobevip", method = RequestMethod.POST)
+    public ServerResponse<BiliUser> toBeVIP(HttpSession httpSession, BiliUser biliUser, Date startTime, Integer duration){
+        //权限查看
+        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
+                httpSession.getAttribute(ConstUtil.STAFF) == ""){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<BiliUser> serverResponse = toBeVIPService(biliUser, startTime, duration);
+        return serverResponse;
+    }
+
+    private ServerResponse<Boolean> checkVIPStateService(BiliUser biliUser){
+        ServerResponse<Boolean> serverResponse = null;
+        if(EmptyJudger.isEmpty(biliUserService.getById(biliUser))){
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        else if(EmptyJudger.isEmpty(biliUser.getEndtime())){
+            biliUser.setUserrole(1);
+            serverResponse = ServerResponse.createRespBySuccess(false);
+        }else{
+            Date timeNow = new Date();
+            if(biliUser.getEndtime().after(timeNow)){
+                biliUser.setUserrole(2);
+                serverResponse = ServerResponse.createRespBySuccess(true);
+            }else {
+                biliUser.setUserrole(1);
+                serverResponse = ServerResponse.createRespBySuccess(false);
+            }
+        }
+        biliUserService.updateById(biliUser);
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/user/checkvipstate", method = RequestMethod.POST)
+    public ServerResponse<Boolean> checkVIPState(HttpSession httpSession, BiliUser biliUser){
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.USER))){
+                biliUser = (BiliUser) httpSession.getAttribute(ConstUtil.USER);
+            }else{
+                return ServerResponse.createByErrorMessage("空的Session以及无效的User输入");
+            }
+        }
+        ServerResponse<Boolean> serverResponse = checkVIPStateService(biliUser);
+        return serverResponse;
+    }
 
 }
