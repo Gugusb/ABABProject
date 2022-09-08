@@ -1,7 +1,12 @@
 package com.abab.service;
 
+import com.abab.common.ServerResponse;
+import com.abab.entity.BiliDictionary;
+import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
 * @author 故故sb
@@ -10,4 +15,27 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface BiliVideoService extends IService<BiliVideo> {
 
+    ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo);
+
+    ServerResponse<BiliVideo> openVideoService(BiliVideo biliVideo);
+
+    ServerResponse<BiliVideo> getVideoInfoByIdService(BiliVideo biliVideo);
+
+    ServerResponse<BiliVideo> updateVideoInfoService(BiliVideo biliVideo);
+
+    ServerResponse<Long> getUnreviewedVideosNumberService();
+
+    ServerResponse<Long> getReviewedVideosNumberService();
+
+    ServerResponse<List<BiliVideo>> getVideosByUserIdService(BiliUser biliUser, Integer pageIndex, Integer pageSize);
+
+    ServerResponse<List<BiliVideo>> getPreparedVideosService(Integer pageIndex, Integer pageSize);
+
+    ServerResponse<List<BiliVideo>> getShelvedVideosService(Integer pageIndex, Integer pageSize);
+
+    ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary, Integer pageIndex, Integer pageSize);
+
+    ServerResponse<List<BiliVideo>> getVideosByAVService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize);
+
+    ServerResponse<List<BiliVideo>> getVideosByTitleService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize);
 }
