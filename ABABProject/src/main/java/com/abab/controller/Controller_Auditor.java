@@ -26,10 +26,6 @@ public class Controller_Auditor extends LogAdder {
     @Autowired
     BiliAuditorService biliAuditorService;
 
-    @Autowired
-    Controller_Logs controller_logs;
-
-
 
     @RequestMapping(value = "/auditor/register", method = RequestMethod.POST)
     public ServerResponse<BiliAuditor> register(HttpSession httpSession, BiliAuditor biliAuditor){
