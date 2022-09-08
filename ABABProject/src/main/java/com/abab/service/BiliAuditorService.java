@@ -1,7 +1,10 @@
 package com.abab.service;
 
+import com.abab.common.ServerResponse;
 import com.abab.entity.BiliAuditor;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
 * @author 故故sb
@@ -10,4 +13,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface BiliAuditorService extends IService<BiliAuditor> {
 
+    ServerResponse<List<BiliAuditor>> getAuditorsByNameService(BiliAuditor biliAuditor);
+
+    ServerResponse<List<BiliAuditor>> getAuditorsByIdService(BiliAuditor biliAuditor);
+
+    ServerResponse<List<BiliAuditor>> getAuditorsByAuthorService(BiliAuditor biliAuditor);
+
+    ServerResponse<BiliAuditor> registerService(BiliAuditor biliAuditor);
+
+    ServerResponse<BiliAuditor> loginService(BiliAuditor biliAuditor);
+
+    ServerResponse<Long> getAuditorNumberService();
 }
