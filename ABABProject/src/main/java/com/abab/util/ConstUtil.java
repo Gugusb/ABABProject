@@ -21,8 +21,16 @@ public class ConstUtil {
     public static String AUDIT_STATE = "审核状态";
     public static String SHELF_STATE = "上架状态";
 
+    public static Integer GINDER_MALE = 1;
+    public static Integer GINDER_FELMALE = 2;
 
-    public static String DATA_UNEXIST = "数据不存在";
+    public static String UNROLE="无权限";
+    public static String RELOGIN="已登录";
+
+    public static Integer USER_ROLE_INDEX = 1;//普通用户
+    public static Integer VIP_ROLE_INDEX = 2;//大会员
+    public static Integer STAFF_ROLE_INDEX = 3;//管理员
+    public static Integer ADMIN_ROLE_INDEX = 4;//审核员
 
     public static String MEMO_USER_ROLE = "用户角色";
     public static String MEMO_STAFF_ROLE = "员工角色";

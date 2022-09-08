@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -205,4 +206,22 @@ public class Controller_Logs {
 
         return serverResponse;
     }
+
+    public ServerResponse<List<BiliLogs>> addLogsForBack(HttpSession httpSession, String message){
+        ServerResponse<List<BiliLogs>> serverResponse = null;
+        BiliLogs biliLogs = new BiliLogs();
+        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
+            biliLogs.setUserid(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorid());
+            biliLogs.setUsername(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorname());
+            biliLogs.setOptime(new Date());
+            biliLogs.setMatter(message);
+            serverResponse =this.addLogsService(biliLogs);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
+        }
+        return serverResponse;
+    }
+
+
 }
