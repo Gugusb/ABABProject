@@ -28,4 +28,6 @@ public interface BiliUserService extends IService<BiliUser> {
     ServerResponse<BiliUser> toBeVIPService(BiliUser biliUser, Date startTime, Integer duration);
 
     ServerResponse<Boolean> checkVIPStateService(BiliUser biliUser);
+
+    ServerResponse<BiliUser> extensionVIPService(BiliUser biliUser, Integer duration);
 }

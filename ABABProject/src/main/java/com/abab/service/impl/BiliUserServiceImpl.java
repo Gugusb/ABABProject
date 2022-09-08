@@ -181,8 +181,15 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
         if(EmptyJudger.isEmpty(biliUser.getUserid())){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }
-        if(biliUser.getUserrole() >= 2){
+        if(EmptyJudger.isEmpty(this.getById(biliUser.getUserid()))){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        BiliUser user = this.getById(biliUser.getUserid());
+        if(user.getUserrole() >= 2){
             return ServerResponse.createByErrorMessage("用户已经是大会员");
+        }
+        if(startTime == null){
+            startTime = new Date();
         }
         //更新用户大会员信息
         Calendar calendar = Calendar.getInstance();
@@ -217,6 +224,30 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
         }
         this.updateById(biliUser);
         return serverResponse;
+    }
+
+    @Override
+    public ServerResponse<BiliUser> extensionVIPService(BiliUser biliUser, Integer duration){
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(this.getById(biliUser.getUserid()))){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        BiliUser user = this.getById(biliUser.getUserid());
+        checkVIPStateService(user);
+        if(user.getUserrole() == 1){
+            return ServerResponse.createByErrorMessage("用户当前并非大会员");
+        }else{
+            //更新用户大会员信息
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(user.getEndtime());
+            calendar.add(Calendar.DAY_OF_YEAR, duration);
+            user.setEndtime(calendar.getTime());
+
+            this.updateById(user);
+        }
+        return ServerResponse.createRespBySuccess(user);
     }
 }
 
