@@ -7,6 +7,7 @@ import com.abab.service.BiliUserService;
 import com.abab.service.BiliVideoService;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
+import com.abab.util.LogAdder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import kotlin.Pair;
@@ -21,16 +22,13 @@ import javax.xml.crypto.Data;
 import java.util.*;
 
 @RestController
-public class Controller_User {
+public class Controller_User extends LogAdder {
 
     @Autowired
     BiliUserService biliUserService;
 
     @Autowired
     BiliVideoService biliVideoService;
-
-    @Autowired
-    Controller_Logs controller_logs;
 
     /**
      * 登录服务
@@ -229,7 +227,7 @@ public class Controller_User {
         ServerResponse<Long> serverResponse = ServerResponse.createRespBySuccess(biliUserService.count());
         if(serverResponse.isSuccess()){
             //写入日志
-            controller_logs.addLogsForBack(httpSession, "获取用户数量");
+            super.addLogsForBack(httpSession, "获取用户数量");
         }
         return serverResponse;
     }
@@ -259,7 +257,7 @@ public class Controller_User {
 
         if(serverResponse.isSuccess()){
             //写入日志
-            controller_logs.addLogsForBack(httpSession, "获取所有用户");
+            super.addLogsForBack(httpSession, "获取所有用户");
         }
         return serverResponse;
     }
@@ -282,7 +280,7 @@ public class Controller_User {
         ServerResponse<BiliUser> serverResponse = ServerResponse.createRespBySuccess(biliUser);
         if(serverResponse.isSuccess()){
             //写入日志
-            controller_logs.addLogsForBack(httpSession, "获取用户信息");
+            super.addLogsForBack(httpSession, "获取用户信息");
         }
         return serverResponse;
     }
@@ -326,7 +324,7 @@ public class Controller_User {
         ServerResponse<BiliUser> serverResponse = getUserInfoByIdService(biliUser);
         if(serverResponse.isSuccess()){
             //写入日志
-            controller_logs.addLogsForBack(httpSession, "通过用户ID查询用户");
+            super.addLogsForBack(httpSession, "通过用户ID查询用户");
         }
         return serverResponse;
     }
@@ -375,7 +373,7 @@ public class Controller_User {
         ServerResponse<BiliUser> serverResponse = updateUserInfoService(biliUser);
         if(serverResponse.isSuccess()){
             //写入日志
-            controller_logs.addLogsForBack(httpSession, "更新用户信息");
+            super.addLogsForBack(httpSession, "更新用户信息");
         }
         return serverResponse;
     }
@@ -424,7 +422,7 @@ public class Controller_User {
         ServerResponse<String> serverResponse = cancelUserService(biliUser);
         if(serverResponse.isSuccess()){
             //写入日志
-            controller_logs.addLogsForBack(httpSession, "注销用户");
+            super.addLogsForBack(httpSession, "注销用户");
         }
         return serverResponse;
     }
