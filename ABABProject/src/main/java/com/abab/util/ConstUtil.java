@@ -31,4 +31,11 @@ public class ConstUtil {
 
     public static String WRONG_MEMO = "错误的Dictionary描述";
 
+    public static final int ORDER_NO_PAY=1;		//未付款
+    public static final int ORDER_PAID=2;		//已经付款
+    public static final int ORDER_SHIPPED=3;	//已经发货
+    public static final int ORDER_SUCCESS=4;	//订单完成
+    public static final int ORDER_CLOESD = 5;	//订单关闭
+    public static final int ORDER_CANCELED=6;  //订单取消
+
 }
