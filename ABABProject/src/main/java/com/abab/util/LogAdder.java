@@ -15,7 +15,7 @@ import java.util.List;
 public class LogAdder {
     @Autowired
     Log4jService log4jService;
-    
+
     public ServerResponse<List<BiliLogs>> addLogsForBack(HttpSession httpSession, String message){
         ServerResponse<List<BiliLogs>> serverResponse = null;
         BiliLogs biliLogs = new BiliLogs();
@@ -31,7 +31,8 @@ public class LogAdder {
         }
         return serverResponse;
     }
-/*
+
+    /*
     public ServerResponse<Integer> exportExcel(String sheetname, List<String> Exceltitles, List<Object> Excelrow){
         ExcelData excelData = new ExcelData();
         int rowIndex = 0;

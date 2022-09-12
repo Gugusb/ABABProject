@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -89,5 +92,29 @@ public class BiliLogs implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    public List<Object> toObject(BiliLogs biliLogs){
+        List<Object> row = new ArrayList<>();
+
+        row.add(biliLogs.getId());
+        row.add(biliLogs.getUserid());
+        row.add(biliLogs.getUsername());
+        row.add(biliLogs.getMatter());
+        row.add(biliLogs.getOptime());
+
+        return row;
+    }
+
+    public List<List<Object>> toRows(List<BiliLogs> data){
+        List<List<Object>> rows = new ArrayList<>();
+
+        for(int i=0; i < data.size(); i++){
+            List<Object> row = this.toObject(data.get(i));
+
+            rows.add(row);
+        }
+
+        return rows;
     }
 }

@@ -5,8 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
+import org.apache.poi.ss.formula.functions.T;
 
 /**
  * 
@@ -45,6 +49,7 @@ public class BiliComment implements Serializable {
      * 备注
      */
     private String memo;
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -97,5 +102,31 @@ public class BiliComment implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    public List<Object> toObject(BiliComment biliComment) {
+        List<Object> row = new ArrayList<>();
+
+        row.add(biliComment.getId());
+        row.add(biliComment.getContent());
+        row.add(biliComment.getUserid());
+        row.add(biliComment.getVideoid());
+        row.add(biliComment.getCommenttime());
+        row.add(biliComment.getMemo());
+
+        return row;
+    }
+
+    public List<List<Object>> toRows(List<BiliComment> data){
+        List<List<Object>> rows = new ArrayList<>();
+
+        for(int i=0; i < data.size(); i++){
+            BiliComment cur = (BiliComment) (data.get(i));
+            List<Object> row = this.toObject(cur);
+
+            rows.add(row);
+        }
+
+        return rows;
     }
 }

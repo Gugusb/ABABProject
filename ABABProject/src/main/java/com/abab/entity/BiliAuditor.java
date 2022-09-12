@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -65,6 +68,7 @@ public class BiliAuditor implements Serializable {
      * 备注
      */
     private String memo;
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -129,5 +133,34 @@ public class BiliAuditor implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    public List<Object> toObject(BiliAuditor biliAuditor){
+        List<Object> row = new ArrayList<>();
+
+        row.add(biliAuditor.getAuditorid());
+        row.add(biliAuditor.getAuditorname());
+        row.add(biliAuditor.getPassword());
+        row.add(biliAuditor.getAuditorauthor());
+        row.add(biliAuditor.getPhone());
+        row.add(biliAuditor.getGender());
+        row.add(biliAuditor.getBirthday());
+        row.add(biliAuditor.getAuditorrole());
+        row.add(biliAuditor.getAuditoravatar());
+        row.add(biliAuditor.getMemo());
+
+        return row;
+    }
+
+    public List<List<Object>> toRows(List<BiliAuditor> data){
+        List<List<Object>> rows = new ArrayList<>();
+
+        for(int i=0; i < data.size(); i++){
+            List<Object> row = this.toObject(data.get(i));
+
+            rows.add(row);
+        }
+
+        return rows;
     }
 }
