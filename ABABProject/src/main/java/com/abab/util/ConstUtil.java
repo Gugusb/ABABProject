@@ -1,7 +1,6 @@
 package com.abab.util;
 
 public class ConstUtil {
-    public static final String MEMO_AUDIT_STATE = "审核状态";
     public static String USER = "USER";
     public static String ADMIN = "ADMIN";
     public static String STAFF = "STAFF";
@@ -29,9 +28,6 @@ public class ConstUtil {
     public static Integer GINDER_MALE = 1;
     public static Integer GINDER_FELMALE = 2;
 
-    public static String UNROLE="无权限";
-    public static String RELOGIN="已登录";
-
     public static Integer USER_ROLE_INDEX = 1;//普通用户
     public static Integer VIP_ROLE_INDEX = 2;//大会员
     public static Integer STAFF_ROLE_INDEX = 3;//管理员
@@ -58,4 +54,7 @@ public class ConstUtil {
     public static final int ORDER_CLOESD = 5;	//订单关闭
     public static final int ORDER_CANCELED=6;  //订单取消
 
+    public static String UNROLE = "无权限";
+
+    public static String RELOGIN = " 重复登录";
 }
