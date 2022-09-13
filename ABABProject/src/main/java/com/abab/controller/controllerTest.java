@@ -26,7 +26,7 @@ public class controllerTest {
 
     @RequestMapping(value = "/test/logs", method = RequestMethod.POST)
     public Object hellologs(HttpSession httpSession, BiliLogs biliLogs){
-        return controller_logs.addLogs(httpSession, biliLogs);
+        return null;
     }
 
     /**
