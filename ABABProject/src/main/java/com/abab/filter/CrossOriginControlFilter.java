@@ -17,7 +17,7 @@ public class CrossOriginControlFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        System.out.println("fiter init");
     }
 
     @Override
@@ -25,14 +25,18 @@ public class CrossOriginControlFilter implements Filter {
 			throws IOException, ServletException {
 		isCross = true;
 		if(isCross){
+            System.out.println("fiter doit");
+
             HttpServletRequest httpServletRequest = (HttpServletRequest)request;
             HttpServletResponse httpServletResponse = (HttpServletResponse)response;
+
+            System.out.println(httpServletRequest.getHeader("Cookie"));
             httpServletResponse.setHeader("Access-Control-Allow-Origin", httpServletRequest.getHeader("Origin"));  
             httpServletResponse.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");  
             httpServletResponse.setHeader("Access-Control-Max-Age", "0");  
             httpServletResponse.setHeader("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With,userId,token");  
             httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");  
-            httpServletResponse.setHeader("XDomainRequestAllowed","1");  
+            //httpServletResponse.setHeader("XDomainRequestAllowed","1");
         }
         chain.doFilter(request, response);
 	}

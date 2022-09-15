@@ -101,14 +101,14 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     }
 
     @Override
-    public ServerResponse<BiliVideo> getVideoInfoByIdService(BiliVideo biliVideo){
+    public ServerResponse<List<BiliVideo>> getVideoInfoByIdService(BiliVideo biliVideo){
         //判断id是否为空
         if(biliVideo.getVideoid() == null){
             return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
         }
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("videoid", biliVideo.getVideoid());
-        BiliVideo video = this.getById(biliVideo);
+        List<BiliVideo> video = this.list(queryWrapper);
 
         if(video == null){
             return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);

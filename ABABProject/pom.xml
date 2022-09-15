@@ -75,6 +75,12 @@
             <artifactId>alipay-sdk-java</artifactId>
             <version>4.33.26.ALL</version>
         </dependency>
+<!--        excel支持-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.14</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -6,8 +6,10 @@ import com.abab.entity.BiliVideo;
 import com.abab.util.ConstUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.Date;
+import java.util.List;
 
 /**
 * @author 故故sb
@@ -19,7 +21,9 @@ public interface BiliUserService extends IService<BiliUser> {
 
     ServerResponse<BiliUser> registerService(BiliUser biliUser);
 
-    ServerResponse<BiliUser> getUserInfoByIdService(BiliUser biliUser);
+    ServerResponse<List<BiliUser>> getUserInfoByIdService(BiliUser biliUser);
+
+    ServerResponse<List<BiliUser>> getUserInfoByNameService(BiliUser biliUser);
 
     ServerResponse<BiliUser> updateUserInfoService(BiliUser biliUser);
 

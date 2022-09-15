@@ -41,8 +41,8 @@ public class Controller_Video extends LogAdder {
     }
 
     @RequestMapping(value = "/video/getvideobyid", method = RequestMethod.POST)
-    public ServerResponse<BiliVideo> getVideoInfoById(HttpSession httpSession, BiliVideo biliVideo){
-        ServerResponse<BiliVideo> serverResponse = biliVideoService.getVideoInfoByIdService(biliVideo);
+    public ServerResponse<List<BiliVideo>> getVideoInfoById(HttpSession httpSession, BiliVideo biliVideo){
+        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getVideoInfoByIdService(biliVideo);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "通过视频ID查询视频");
@@ -71,7 +71,7 @@ public class Controller_Video extends LogAdder {
         if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.VIDEO))){
             return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
         }
-        ServerResponse<BiliVideo> serverResponse = biliVideoService.getVideoInfoByIdService((BiliVideo) httpSession.getAttribute(ConstUtil.VIDEO));
+        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getVideoInfoByIdService((BiliVideo) httpSession.getAttribute(ConstUtil.VIDEO));
         return null;
     }
 

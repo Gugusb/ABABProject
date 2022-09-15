@@ -140,14 +140,14 @@ public class Controller_User extends LogAdder {
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @RequestMapping(value = "/user/getuserinfo", method = RequestMethod.POST)
-    public ServerResponse<BiliUser> getUserInfo(HttpSession httpSession){
+    public ServerResponse<List<BiliUser>> getUserInfo(HttpSession httpSession){
         //权限查看
         if(!AccessJudger.isUser(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
         }
 
-        BiliUser biliUser = (BiliUser) httpSession.getAttribute(ConstUtil.USER);
-        ServerResponse<BiliUser> serverResponse = ServerResponse.createRespBySuccess(biliUser);
+        List<BiliUser> biliUsers = (List<BiliUser>) httpSession.getAttribute(ConstUtil.USER);
+        ServerResponse<List<BiliUser>> serverResponse = ServerResponse.createRespBySuccess(biliUsers);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "获取用户信息");
@@ -163,7 +163,7 @@ public class Controller_User extends LogAdder {
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @RequestMapping(value = "/user/getuserinfobyid", method = RequestMethod.POST)
-    public ServerResponse<BiliUser> getUserInfoById(HttpSession httpSession, BiliUser biliUser){
+    public ServerResponse<List<BiliUser>> getUserInfoById(HttpSession httpSession, BiliUser biliUser){
         //权限查看
         if(!AccessJudger.isStaff(httpSession)){
             if(!AccessJudger.isUser(httpSession)){
@@ -171,10 +171,27 @@ public class Controller_User extends LogAdder {
             }
         }
 
-        ServerResponse<BiliUser> serverResponse = biliUserService.getUserInfoByIdService(biliUser);
+        ServerResponse<List<BiliUser>> serverResponse = biliUserService.getUserInfoByIdService(biliUser);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "通过用户ID查询用户");
+        }
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/user/getuserinfobyname", method = RequestMethod.POST)
+    public ServerResponse<List<BiliUser>> getUserInfoByName(HttpSession httpSession, BiliUser biliUser){
+        //权限查看
+        if(!AccessJudger.isStaff(httpSession)){
+            if(!AccessJudger.isUser(httpSession)){
+                return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+            }
+        }
+
+        ServerResponse<List<BiliUser>> serverResponse = biliUserService.getUserInfoByNameService(biliUser);
+        if(serverResponse.isSuccess()){
+            //写入日志
+            super.addLogsForBack(httpSession, "通过用户名查询用户");
         }
         return serverResponse;
     }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
 * @author 故故sb
@@ -110,11 +111,24 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @Override
-    public ServerResponse<BiliUser> getUserInfoByIdService(BiliUser biliUser){
-        BiliUser user = null;
+    public ServerResponse<List<BiliUser>> getUserInfoByIdService(BiliUser biliUser){
+        List<BiliUser> user = null;
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("userid", biliUser.getUserid());
-        user = this.getOne(queryWrapper);
+        user = this.list(queryWrapper);
+        if(user == null){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }else {
+            return ServerResponse.createRespBySuccess(user);
+        }
+    }
+
+    @Override
+    public ServerResponse<List<BiliUser>> getUserInfoByNameService(BiliUser biliUser){
+        List<BiliUser> user = null;
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("username", biliUser.getUsername());
+        user = this.list(queryWrapper);
         if(user == null){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }else {

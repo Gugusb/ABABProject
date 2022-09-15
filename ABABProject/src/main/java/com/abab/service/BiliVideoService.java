@@ -19,7 +19,7 @@ public interface BiliVideoService extends IService<BiliVideo> {
 
     ServerResponse<BiliVideo> openVideoService(BiliVideo biliVideo);
 
-    ServerResponse<BiliVideo> getVideoInfoByIdService(BiliVideo biliVideo);
+    ServerResponse<List<BiliVideo>> getVideoInfoByIdService(BiliVideo biliVideo);
 
     ServerResponse<BiliVideo> updateVideoInfoService(BiliVideo biliVideo);
 
