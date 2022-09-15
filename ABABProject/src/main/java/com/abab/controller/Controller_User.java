@@ -5,6 +5,7 @@ import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
 import com.abab.service.BiliUserService;
 import com.abab.service.BiliVideoService;
+import com.abab.util.AccessJudger;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
 import com.abab.util.LogAdder;
@@ -75,7 +76,7 @@ public class Controller_User extends LogAdder {
      */
     @RequestMapping(value = "/user/submitvideo", method = RequestMethod.POST)
     public ServerResponse<BiliVideo> submitVideo(HttpSession httpSession, BiliVideo biliVideo){
-        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.USER))){
+        if(!AccessJudger.isUser(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
         }
         ServerResponse<BiliVideo> serverResponse = biliVideoService.submitVideoService((BiliUser) httpSession.getAttribute(ConstUtil.USER), biliVideo);
@@ -91,8 +92,7 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/getusernumber", method = RequestMethod.POST)
     public ServerResponse<Long> getUserNumber(HttpSession httpSession){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
-                httpSession.getAttribute(ConstUtil.STAFF) == ""){
+        if(!AccessJudger.isStaff(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
         ServerResponse<Long> serverResponse = ServerResponse.createRespBySuccess(biliUserService.count());
@@ -115,9 +115,9 @@ public class Controller_User extends LogAdder {
     public ServerResponse<List<BiliUser>> getUsers(HttpSession httpSession,
                                                    @RequestParam(defaultValue = "1") Integer pageIndex,
                                                    @RequestParam(defaultValue = "5") Integer pageSize){
+        System.out.println(httpSession.getId());
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.ADMIN) == null ||
-                httpSession.getAttribute(ConstUtil.ADMIN) == ""){
+        if(!AccessJudger.isStaff(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
 
@@ -142,8 +142,7 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/getuserinfo", method = RequestMethod.POST)
     public ServerResponse<BiliUser> getUserInfo(HttpSession httpSession){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.USER) == null ||
-                httpSession.getAttribute(ConstUtil.USER) == ""){
+        if(!AccessJudger.isUser(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
         }
 
@@ -166,10 +165,8 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/getuserinfobyid", method = RequestMethod.POST)
     public ServerResponse<BiliUser> getUserInfoById(HttpSession httpSession, BiliUser biliUser){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
-                httpSession.getAttribute(ConstUtil.STAFF) == ""){
-            if(httpSession.getAttribute(ConstUtil.USER) == null ||
-                    httpSession.getAttribute(ConstUtil.USER) == ""){
+        if(!AccessJudger.isStaff(httpSession)){
+            if(!AccessJudger.isUser(httpSession)){
                 return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
             }
         }
@@ -192,15 +189,16 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/updateuserinfo", method = RequestMethod.POST)
     public ServerResponse<BiliUser> updateUserInfo(HttpSession httpSession, BiliUser biliUser){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.USER) == null ||
-                httpSession.getAttribute(ConstUtil.USER) == ""){
-            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        if((!AccessJudger.isUser(httpSession)) && (!AccessJudger.isStaff(httpSession))){
+            return ServerResponse.createByErrorMessage("用户和管理员皆未登录");
         }
 
         ServerResponse<BiliUser> serverResponse = biliUserService.updateUserInfoService(biliUser);
-        if(serverResponse.isSuccess()){
-            //写入日志
-            super.addLogsForBack(httpSession, "更新用户信息");
+        if(AccessJudger.isStaff(httpSession)){
+            if(serverResponse.isSuccess()){
+                //写入日志
+                super.addLogsForBack(httpSession, "更新用户信息");
+            }
         }
         return serverResponse;
     }
@@ -215,8 +213,7 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/canceluser", method = RequestMethod.POST)
     public ServerResponse<String> cancelUser(HttpSession httpSession, BiliUser biliUser){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
-                httpSession.getAttribute(ConstUtil.STAFF) == ""){
+        if(!AccessJudger.isStaff(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
 
@@ -231,8 +228,7 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/tobevip", method = RequestMethod.POST)
     public ServerResponse<BiliUser> toBeVIP(HttpSession httpSession, BiliUser biliUser, Date startTime, Integer duration){
         //权限查看
-        if(httpSession.getAttribute(ConstUtil.STAFF) == null ||
-                httpSession.getAttribute(ConstUtil.STAFF) == ""){
+        if(!AccessJudger.isStaff(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
         ServerResponse<BiliUser> serverResponse = biliUserService.toBeVIPService(biliUser, startTime, duration);
@@ -242,7 +238,7 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/checkvipstate", method = RequestMethod.POST)
     public ServerResponse<Boolean> checkVIPState(HttpSession httpSession, BiliUser biliUser){
         if(EmptyJudger.isEmpty(biliUser.getUserid())){
-            if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.USER))){
+            if(AccessJudger.isUser(httpSession)){
                 biliUser = (BiliUser) httpSession.getAttribute(ConstUtil.USER);
             }else{
                 return ServerResponse.createByErrorMessage("空的Session以及无效的User输入");

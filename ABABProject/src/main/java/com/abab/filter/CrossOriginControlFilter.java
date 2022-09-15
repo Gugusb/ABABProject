@@ -23,7 +23,7 @@ public class CrossOriginControlFilter implements Filter {
     @Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		isCross=true;
+		isCross = true;
 		if(isCross){
             HttpServletRequest httpServletRequest = (HttpServletRequest)request;
             HttpServletResponse httpServletResponse = (HttpServletResponse)response;
@@ -36,13 +36,5 @@ public class CrossOriginControlFilter implements Filter {
         }
         chain.doFilter(request, response);
 	}
-
-//	@Override
-//	public void init(FilterConfig filterConfig) throws ServletException {
-//		String isCrossStr = filterConfig.getInitParameter("IsCross");
-//        isCross = isCrossStr.equals("true")?true:false;
-//        System.out.println(isCrossStr);
-//
-//	}
 
 }

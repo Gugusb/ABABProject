@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 public class Controller_Auditor extends LogAdder {
 
     @Autowired
     BiliAuditorService biliAuditorService;
-
 
     @RequestMapping(value = "/auditor/register", method = RequestMethod.POST)
     public ServerResponse<BiliAuditor> register(HttpSession httpSession, BiliAuditor biliAuditor){
@@ -43,10 +43,11 @@ public class Controller_Auditor extends LogAdder {
 
     @RequestMapping(value = "/auditor/login", method = RequestMethod.POST)
     public ServerResponse<BiliAuditor> login(HttpSession httpSession, BiliAuditor biliAuditor){
+        System.out.println(httpSession.getId());
         ServerResponse<BiliAuditor> serverResponse = null;
 
         // 如果未登录
-        if(httpSession.getAttribute(ConstUtil.ADMIN)==null&&httpSession.getAttribute(ConstUtil.STAFF)==null){
+        if(httpSession.getAttribute(ConstUtil.ADMIN) == null && httpSession.getAttribute(ConstUtil.STAFF) == null){
             serverResponse = biliAuditorService.loginService(biliAuditor);
         }
         else{
@@ -54,13 +55,14 @@ public class Controller_Auditor extends LogAdder {
         }
 
         if(serverResponse.isSuccess()){
+            httpSession.setAttribute("1", 111);
             httpSession.setAttribute(ConstUtil.STAFF, serverResponse.getData());
-            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorrole() == ConstUtil.ADMIN_ROLE_INDEX)
+            if(Objects.equals(((BiliAuditor) httpSession.getAttribute(ConstUtil.STAFF)).getAuditorrole(), ConstUtil.ADMIN_ROLE_INDEX))
                 httpSession.setAttribute(ConstUtil.ADMIN, serverResponse.getData());
             else{
                 System.out.println("该用户是员工而非管理员");
             }
-            httpSession.setMaxInactiveInterval(30*60);
+            httpSession.setMaxInactiveInterval(30 * 60);
         }
 
         return serverResponse;
