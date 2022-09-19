@@ -47,6 +47,31 @@ public class BiliAuditorServiceImpl extends ServiceImpl<BiliAuditorMapper, BiliA
     }
 
     @Override
+    public ServerResponse<List<BiliAuditor>> getAuditorsService(){
+        //业务层逻辑
+        ServerResponse<List<BiliAuditor>> serverResponse = null;
+        List<BiliAuditor> listAuditor = null;
+
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.isNotNull("auditorid");
+        listAuditor = this.list(queryWrapper);
+
+        if(listAuditor!=null){
+            if(listAuditor.size()==0){
+                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+            }
+            else
+                serverResponse = ServerResponse.createRespBySuccess(listAuditor);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+
+        return serverResponse;
+    }
+
+    @Override
     public ServerResponse<List<BiliAuditor>> getAuditorsByIdService(BiliAuditor biliAuditor){
         //业务层逻辑
         ServerResponse<List<BiliAuditor>> serverResponse = null;

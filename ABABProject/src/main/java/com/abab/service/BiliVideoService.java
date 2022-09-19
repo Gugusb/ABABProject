@@ -54,4 +54,6 @@ public interface BiliVideoService extends IService<BiliVideo> {
     ServerResponse<List<BiliVideo>> getVideosByAVService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize);
 
     ServerResponse<List<BiliVideo>> getVideosByTitleService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize);
+
+
 }

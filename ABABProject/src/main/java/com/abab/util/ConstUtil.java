@@ -57,4 +57,7 @@ public class ConstUtil {
     public static String UNROLE = "无权限";
 
     public static String RELOGIN = " 重复登录";
+
+    public static String FILEPATH_NO_EXIST = "文件路径不存在";
+
 }

@@ -5,28 +5,24 @@ import com.abab.entity.BiliAuditor;
 import com.abab.entity.BiliUser;
 import com.abab.service.BiliAuditorService;
 import com.abab.service.impl.BiliAuditorServiceImpl;
-import com.abab.util.ConstUtil;
-import com.abab.util.EmptyJudger;
-import com.abab.util.ExcelDatasProduce;
-import com.abab.util.LogAdder;
+import com.abab.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+
 
 @RestController
 public class Controller_Auditor extends LogAdder {
 
     @Autowired
     BiliAuditorService biliAuditorService;
+
 
     @RequestMapping(value = "/auditor/register", method = RequestMethod.POST)
     public ServerResponse<BiliAuditor> register(HttpSession httpSession, BiliAuditor biliAuditor){
@@ -43,11 +39,11 @@ public class Controller_Auditor extends LogAdder {
 
     @RequestMapping(value = "/auditor/login", method = RequestMethod.POST)
     public ServerResponse<BiliAuditor> login(HttpSession httpSession, BiliAuditor biliAuditor){
-        System.out.println(httpSession.getId());
+        System.out.println("login: " + httpSession.getId());
         ServerResponse<BiliAuditor> serverResponse = null;
 
         // 如果未登录
-        if(httpSession.getAttribute(ConstUtil.ADMIN) == null && httpSession.getAttribute(ConstUtil.STAFF) == null){
+        if(!AccessJudger.isAdmin(httpSession) && !AccessJudger.isStaff(httpSession)){
             serverResponse = biliAuditorService.loginService(biliAuditor);
         }
         else{
@@ -55,14 +51,13 @@ public class Controller_Auditor extends LogAdder {
         }
 
         if(serverResponse.isSuccess()){
-            httpSession.setAttribute("1", 111);
             httpSession.setAttribute(ConstUtil.STAFF, serverResponse.getData());
-            if(Objects.equals(((BiliAuditor) httpSession.getAttribute(ConstUtil.STAFF)).getAuditorrole(), ConstUtil.ADMIN_ROLE_INDEX))
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorrole() == ConstUtil.ADMIN_ROLE_INDEX)
                 httpSession.setAttribute(ConstUtil.ADMIN, serverResponse.getData());
             else{
                 System.out.println("该用户是员工而非管理员");
             }
-            httpSession.setMaxInactiveInterval(30 * 60);
+            httpSession.setMaxInactiveInterval(30*60);
         }
 
         return serverResponse;
@@ -72,23 +67,59 @@ public class Controller_Auditor extends LogAdder {
     public ServerResponse<Long> getAuditorNumber(HttpSession httpSession){
         ServerResponse<Long> serverResponse=null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
+        if(AccessJudger.isStaff(httpSession)){
             serverResponse = biliAuditorService.getAuditorNumberService();
         }
 
         return serverResponse;
     }
 
+    //查所有管理员
+    @RequestMapping(value = "/auditor/getauditors", method = RequestMethod.POST)
+    public ServerResponse<List<BiliAuditor>> getAuditors(HttpSession httpSession,
+                                                             @RequestParam(defaultValue = "1") Integer pageIndex,
+                                                             @RequestParam(defaultValue = "5") Integer pageSize){
+        System.out.println("getauditors: " + httpSession.getId());
+
+        PageHelper.startPage(pageIndex, pageSize);
+
+        ServerResponse<List<BiliAuditor>> serverResponse = null;
+
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
+            if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
+                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
+            }
+            else{
+                serverResponse = biliAuditorService.getAuditorsService();
+            }
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
+        }
+
+        if(serverResponse.isSuccess()){
+            super.addLogsForBack(httpSession,"通过ID查看相关管理员信息");
+
+            httpSession.setAttribute(ConstUtil.AUDITOR_QUERY, serverResponse.getData());
+            httpSession.setMaxInactiveInterval(30*60);
+        }
+
+        return serverResponse;
+    }
+
+
     @RequestMapping(value = "/auditor/getauditorsbyid", method = RequestMethod.POST)
     public ServerResponse<List<BiliAuditor>> getAuditorsById(HttpSession httpSession,
                                                              BiliAuditor biliAuditor,
                                                              @RequestParam(defaultValue = "1") Integer pageIndex,
                                                              @RequestParam(defaultValue = "5") Integer pageSize){
+        System.out.println("getauditors: " + httpSession.getId());
+
         PageHelper.startPage(pageIndex, pageSize);
 
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
             if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
             }
@@ -120,7 +151,7 @@ public class Controller_Auditor extends LogAdder {
 
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
             if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()!=ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse = ServerResponse.createByErrorMessage(ConstUtil.UNROLE);
             }
@@ -151,7 +182,7 @@ public class Controller_Auditor extends LogAdder {
 
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
                 serverResponse = biliAuditorService.getAuditorsByAuthorService(biliAuditor);
         }
         else{
@@ -172,7 +203,7 @@ public class Controller_Auditor extends LogAdder {
     public ServerResponse<List<BiliAuditor>> downloadAuditorsById(HttpSession httpSession){
         ServerResponse<List<BiliAuditor>> serverResponse = null;
 
-        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF)) && !EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.ADMIN))){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.AUDITOR_QUERY))){
 

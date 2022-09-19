@@ -15,6 +15,8 @@ public interface BiliAuditorService extends IService<BiliAuditor> {
 
     ServerResponse<List<BiliAuditor>> getAuditorsByNameService(BiliAuditor biliAuditor);
 
+    ServerResponse<List<BiliAuditor>> getAuditorsService();
+
     ServerResponse<List<BiliAuditor>> getAuditorsByIdService(BiliAuditor biliAuditor);
 
     ServerResponse<List<BiliAuditor>> getAuditorsByAuthorService(BiliAuditor biliAuditor);

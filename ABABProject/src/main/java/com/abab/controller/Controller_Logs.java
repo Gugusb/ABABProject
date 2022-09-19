@@ -5,6 +5,7 @@ import com.abab.entity.BiliAuditor;
 import com.abab.entity.BiliDictionary;
 import com.abab.entity.BiliLogs;
 import com.abab.service.Log4jService;
+import com.abab.util.AccessJudger;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
 import com.abab.util.ExcelDatasProduce;
@@ -33,7 +34,7 @@ public class Controller_Logs {
         PageHelper.startPage(pageIndex, pageSize);
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
             if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse = log4jService.getAllLogsService();
             }
@@ -62,7 +63,7 @@ public class Controller_Logs {
 
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
             if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse = log4jService.getLogsByStaffIdService(biliAuditor);
             }
@@ -86,7 +87,7 @@ public class Controller_Logs {
 
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null&&httpSession.getAttribute(ConstUtil.ADMIN)!=null){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
             if(((BiliAuditor)httpSession.getAttribute(ConstUtil.ADMIN)).getAuditorrole()==ConstUtil.ADMIN_ROLE_INDEX){
                 serverResponse = log4jService.getLogsByOperationService(biliDictionary);
             }
@@ -105,7 +106,7 @@ public class Controller_Logs {
     public ServerResponse<List<BiliLogs>> addLogs(HttpSession httpSession, BiliLogs biliLogs){
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
+        if(AccessJudger.isStaff(httpSession)){
             biliLogs.setUserid(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorid());
             biliLogs.setUsername(((BiliAuditor)httpSession.getAttribute(ConstUtil.STAFF)).getAuditorname());
             biliLogs.setOptime(new Date());
@@ -126,7 +127,7 @@ public class Controller_Logs {
     public ServerResponse<List<BiliLogs>> downloadAllLogs(HttpSession httpSession){
         ServerResponse<List<BiliLogs>> serverResponse = null;
 
-        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF)) && !EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.ADMIN))){
+        if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.LOGS_QUERY))){
 
