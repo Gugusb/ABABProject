@@ -4,8 +4,7 @@ import com.abab.common.ServerResponse;
 import com.abab.entity.BiliDictionary;
 import com.abab.entity.BiliUser;
 import com.abab.service.BiliUserService;
-import com.abab.util.ConstUtil;
-import com.abab.util.EmptyJudger;
+import com.abab.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.abab.entity.BiliVideo;
@@ -15,11 +14,11 @@ import com.github.pagehelper.PageHelper;
 import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 /**
 * @author 故故sb
@@ -31,13 +30,40 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     implements BiliVideoService{
     @Autowired
     BiliUserService biliUserService;
+
     @Override
-    public ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo){
+    public ServerResponse<BiliVideo> uploadVideo(MultipartFile video, MultipartFile image) {
+        if(video.getSize() > VideoConstUtil.MAX_VIDEO_SIZE){
+            return ServerResponse.createByErrorMessage("过大的视频文件");
+        }
+        if(image.getSize() > VideoConstUtil.MAX_IMAGE_SIZE){
+            return ServerResponse.createByErrorMessage("过大的封面文件");
+        }
+        ServerResponse<String> image_response = FileLoader.uploadImage(image, VideoConstUtil.IMAGE_PATH);
+        ServerResponse<String> video_response = FileLoader.uploadVideo(video, VideoConstUtil.VIDEO_PATH);
+
+        if(!image_response.isSuccess()){
+            return ServerResponse.createByErrorMessage("视频封面文件上传失败");
+        }
+        if(!video_response.isSuccess()){
+            return ServerResponse.createByErrorMessage("视频文件上传失败");
+        }
+
+        //返回封面和视频的路径
+        BiliVideo biliVideo = new BiliVideo();
+        biliVideo.setVideopath(video_response.getData());
+        biliVideo.setCoverimage(image_response.getData());
+        return ServerResponse.createRespBySuccess(biliVideo);
+
+    }
+
+    @Override
+    public ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo, MultipartFile videoFile, MultipartFile imageFile){
         //检查用户信息是否全面
         ArrayList<Pair<Object, String>> l = new ArrayList<>();
         l.add(new Pair<>(biliVideo.getVideotitle(), "视频标题"));
-        l.add(new Pair<>(biliVideo.getVideopath(), "视频源"));
-        l.add(new Pair<>(biliVideo.getCoverimage(), "视频封面"));
+        //l.add(new Pair<>(biliVideo.getVideopath(), "视频源"));
+        //l.add(new Pair<>(biliVideo.getCoverimage(), "视频封面"));
         for (Pair<Object, String> p : l){
             if(p.getFirst() == null){
                 return ServerResponse.createByErrorMessage(p.getSecond() + ConstUtil.NOTALLOW_EMPTY);
@@ -59,11 +85,19 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
             }
         }
 
+        //尝试上传文件
+        ServerResponse<BiliVideo> upload_response = this.uploadVideo(videoFile, imageFile);
+        if(!upload_response.isSuccess()){
+            return upload_response;
+        }
+
         //数据补全
+        //上传成功 填充视频路径以及封面路径
+        biliVideo.setCoverimage(upload_response.getData().getCoverimage());
+        biliVideo.setVideopath(upload_response.getData().getVideopath());
         //随机生成AV号
-        Random random = new Random();
-        int randav = 1000000 + random.nextInt(900000);
-        biliVideo.setVideoid("AV" + randav);
+        String av = UUIDMaker.generationAV();
+        biliVideo.setVideoid(av);
         //初始化三连数量
         biliVideo.setThumbs(0L);
         biliVideo.setCoin(0l);
@@ -241,6 +275,7 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
 
         return ServerResponse.createRespBySuccess(list);
     }
+
 }
 
 

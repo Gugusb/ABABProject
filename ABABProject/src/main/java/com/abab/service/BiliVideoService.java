@@ -5,6 +5,7 @@ import com.abab.entity.BiliDictionary;
 import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,7 +16,9 @@ import java.util.List;
 */
 public interface BiliVideoService extends IService<BiliVideo> {
 
-    ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo);
+    ServerResponse<BiliVideo> uploadVideo(MultipartFile video, MultipartFile image);
+
+    ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo, MultipartFile videoFile, MultipartFile imageFile);
 
     ServerResponse<BiliVideo> openVideoService(BiliVideo biliVideo);
 

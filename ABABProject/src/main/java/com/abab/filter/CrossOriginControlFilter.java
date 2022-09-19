@@ -25,12 +25,9 @@ public class CrossOriginControlFilter implements Filter {
 			throws IOException, ServletException {
 		isCross = true;
 		if(isCross){
-            System.out.println("fiter doit");
 
             HttpServletRequest httpServletRequest = (HttpServletRequest)request;
             HttpServletResponse httpServletResponse = (HttpServletResponse)response;
-
-            System.out.println(httpServletRequest.getHeader("Cookie"));
             httpServletResponse.setHeader("Access-Control-Allow-Origin", httpServletRequest.getHeader("Origin"));  
             httpServletResponse.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");  
             httpServletResponse.setHeader("Access-Control-Max-Age", "0");  

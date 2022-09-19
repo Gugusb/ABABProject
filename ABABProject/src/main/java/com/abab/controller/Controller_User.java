@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.crypto.Data;
@@ -75,11 +76,11 @@ public class Controller_User extends LogAdder {
      * @return {@link ServerResponse}<{@link BiliVideo}>
      */
     @RequestMapping(value = "/user/submitvideo", method = RequestMethod.POST)
-    public ServerResponse<BiliVideo> submitVideo(HttpSession httpSession, BiliVideo biliVideo){
+    public ServerResponse<BiliVideo> submitVideo(HttpSession httpSession, BiliVideo biliVideo, MultipartFile videoFile, MultipartFile imageFile){
         if(!AccessJudger.isUser(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
         }
-        ServerResponse<BiliVideo> serverResponse = biliVideoService.submitVideoService((BiliUser) httpSession.getAttribute(ConstUtil.USER), biliVideo);
+        ServerResponse<BiliVideo> serverResponse = biliVideoService.submitVideoService((BiliUser) httpSession.getAttribute(ConstUtil.USER), biliVideo, videoFile, imageFile);
         return serverResponse;
     }
 
