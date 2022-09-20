@@ -129,12 +129,15 @@ public class Controller_Video extends LogAdder {
 
     @RequestMapping(value = "/video/getpreparedvideos", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getPreparedVideos(HttpSession httpSession,
+                                                             String byId,
+                                                             String byTitle,
+                                                             String byUser,
                                                              @RequestParam(defaultValue = "1") Integer pageIndex,
                                                              @RequestParam(defaultValue = "5") Integer pageSize){
         if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
-        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getPreparedVideosService(pageIndex, pageSize);
+        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getPreparedVideosService(byId, byTitle, byUser, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "获取所有待上架视频");
@@ -144,12 +147,15 @@ public class Controller_Video extends LogAdder {
 
     @RequestMapping(value = "/video/getshelvedvideos", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getShelvedVideos(HttpSession httpSession,
+                                                            String byId,
+                                                            String byTitle,
+                                                            String byUser,
                                                             @RequestParam(defaultValue = "1") Integer pageIndex,
                                                             @RequestParam(defaultValue = "5") Integer pageSize){
         if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
-        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getShelvedVideosService(pageIndex, pageSize);
+        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getShelvedVideosService(byId, byTitle, byUser, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "获取所有已上架视频");
@@ -159,13 +165,16 @@ public class Controller_Video extends LogAdder {
 
     @RequestMapping(value = "/video/getvideosbyauditstate", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getVideosByAuditState(HttpSession httpSession,
-                                                                BiliDictionary dictionary,
-                                                                @RequestParam(defaultValue = "1") Integer pageIndex,
-                                                                @RequestParam(defaultValue = "5") Integer pageSize){
+                                                                 BiliDictionary dictionary,
+                                                                 String byId,
+                                                                 String byTitle,
+                                                                 String byUser,
+                                                                 @RequestParam(defaultValue = "1") Integer pageIndex,
+                                                                 @RequestParam(defaultValue = "5") Integer pageSize){
         if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
-        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getVideosByAuditStateService(dictionary, pageIndex, pageSize);
+        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getVideosByAuditStateService(dictionary, byId, byTitle, byUser, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "根据审核状态查找视频");

@@ -32,11 +32,24 @@ public interface BiliVideoService extends IService<BiliVideo> {
 
     ServerResponse<List<BiliVideo>> getVideosByUserIdService(BiliUser biliUser, Integer pageIndex, Integer pageSize);
 
-    ServerResponse<List<BiliVideo>> getPreparedVideosService(Integer pageIndex, Integer pageSize);
+    ServerResponse<List<BiliVideo>> getPreparedVideosService(String byId,
+                                                             String byTitle,
+                                                             String byUser,
+                                                             Integer pageIndex,
+                                                             Integer pageSize);
 
-    ServerResponse<List<BiliVideo>> getShelvedVideosService(Integer pageIndex, Integer pageSize);
+    ServerResponse<List<BiliVideo>> getShelvedVideosService(String byId,
+                                                            String byTitle,
+                                                            String byUser,
+                                                            Integer pageIndex,
+                                                            Integer pageSize);
 
-    ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary, Integer pageIndex, Integer pageSize);
+    ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary,
+                                                                 String byId,
+                                                                 String byTitle,
+                                                                 String byUser,
+                                                                 Integer pageIndex,
+                                                                 Integer pageSize);
 
     ServerResponse<List<BiliVideo>> getVideosByAVService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize);
 

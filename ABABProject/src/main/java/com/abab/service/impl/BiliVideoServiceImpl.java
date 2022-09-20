@@ -205,11 +205,29 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     }
 
     @Override
-    public ServerResponse<List<BiliVideo>> getPreparedVideosService(Integer pageIndex, Integer pageSize){
+    public ServerResponse<List<BiliVideo>> getPreparedVideosService(String byId,
+                                                                    String byTitle,
+                                                                    String byUser,
+                                                                    Integer pageIndex,
+                                                                    Integer pageSize){
         PageHelper.startPage(pageIndex, pageSize);
 
         QueryWrapper queryWrapper = new QueryWrapper();
+        //组装qw
         queryWrapper.eq("grounding", 9);
+        //按照ID查找
+        if(byId != null){
+            queryWrapper.eq("videoid", byId);
+        }
+        //按照用户查找
+        if(byUser != null){
+            System.out.println("用户id" + byUser);
+            queryWrapper.eq("uploaderid", byUser);
+        }
+        //按照标题查找
+        if(byTitle != null){
+            queryWrapper.like("videotitle", byTitle);
+        }
 
         List<BiliVideo> list = this.list(queryWrapper);
 
@@ -217,11 +235,28 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     }
 
     @Override
-    public ServerResponse<List<BiliVideo>> getShelvedVideosService(Integer pageIndex, Integer pageSize){
+    public ServerResponse<List<BiliVideo>> getShelvedVideosService(String byId,
+                                                                   String byTitle,
+                                                                   String byUser,
+                                                                   Integer pageIndex,
+                                                                   Integer pageSize){
         PageHelper.startPage(pageIndex, pageSize);
 
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("grounding", 8);
+        //按照ID查找
+        if(byId != null){
+            queryWrapper.eq("videoid", byId);
+        }
+        //按照用户查找
+        if(byUser != null){
+            System.out.println("用户id" + byUser);
+            queryWrapper.eq("uploaderid", byUser);
+        }
+        //按照标题查找
+        if(byTitle != null){
+            queryWrapper.like("videotitle", byTitle);
+        }
 
         List<BiliVideo> list = this.list(queryWrapper);
 
@@ -229,7 +264,12 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     }
 
     @Override
-    public ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary, Integer pageIndex, Integer pageSize){
+    public ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary,
+                                                                        String byId,
+                                                                        String byTitle,
+                                                                        String byUser,
+                                                                        Integer pageIndex,
+                                                                        Integer pageSize){
         //检查是否是相关描述
         if(dictionary.getMemo() != ConstUtil.MEMO_AUDIT_STATE){
             return ServerResponse.createByErrorMessage(ConstUtil.WRONG_MEMO);
@@ -238,6 +278,19 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
         PageHelper.startPage(pageIndex, pageSize);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("auditing", dictionary.getKey());
+
+        if(byId != null){
+            queryWrapper.eq("videoid", byId);
+        }
+        //按照用户查找
+        if(byUser != null){
+            System.out.println("用户id" + byUser);
+            queryWrapper.eq("uploaderid", byUser);
+        }
+        //按照标题查找
+        if(byTitle != null){
+            queryWrapper.like("videotitle", byTitle);
+        }
 
         List<BiliVideo> list = this.list(queryWrapper);
 
