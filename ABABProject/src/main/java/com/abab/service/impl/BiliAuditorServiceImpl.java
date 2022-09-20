@@ -3,6 +3,7 @@ package com.abab.service.impl;
 import com.abab.common.ServerResponse;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
+import com.abab.util.MD5Util;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.abab.entity.BiliAuditor;
@@ -140,6 +141,8 @@ public class BiliAuditorServiceImpl extends ServiceImpl<BiliAuditorMapper, BiliA
             serverResponse=ServerResponse.createByErrorMessage("用户密码长度请不要超过50");
         }
         else{
+            biliAuditor.setPassword(MD5Util.getMD5(biliAuditor.getPassword()));
+
             this.save(biliAuditor);//向db插入用户
 
             serverResponse=ServerResponse.createRespBySuccess(biliAuditor);
@@ -162,7 +165,9 @@ public class BiliAuditorServiceImpl extends ServiceImpl<BiliAuditorMapper, BiliA
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }
         else{
-            if(Auditor.getPassword().equals(biliAuditor.getPassword())){
+            String match_password = MD5Util.getMD5(biliAuditor.getPassword());
+
+            if(Auditor.getPassword().equals(match_password)){
                 serverResponse = ServerResponse.createRespBySuccess(Auditor);
             }
             else{

@@ -5,7 +5,14 @@ import com.abab.entity.BiliBullet;
 import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
 import com.abab.service.BulletService;
+import com.abab.util.ConstUtil;
+import com.abab.util.EmptyJudger;
+import com.abab.util.ExcelDatasProduce;
+import com.abab.util.LogAdder;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import com.abab.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,7 +57,7 @@ public class Controller_Bullet extends LogAdder {
                                                                 @RequestParam(defaultValue = "5") Integer pageSize){
         ServerResponse<List<BiliBullet>> serverResponse=null;
 
-        if(AccessJudger.isStaff(httpSession)){
+        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
             serverResponse = bulletService.getBulletsByVideoIdService(biliVideo);
         }
         else{
@@ -95,7 +102,7 @@ public class Controller_Bullet extends LogAdder {
     public ServerResponse<BiliBullet> postBullet(HttpSession httpSession, BiliBullet biliBullet){
         ServerResponse<BiliBullet> serverResponse=null;
 
-        if(AccessJudger.isUser(httpSession)){
+        if(httpSession.getAttribute(ConstUtil.USER)!=null){
             //为弹幕设置当前用户id
             biliBullet.setUserid(((BiliUser)httpSession.getAttribute(ConstUtil.USER)).getUserid());
 
@@ -114,7 +121,7 @@ public class Controller_Bullet extends LogAdder {
         ServerResponse<BiliBullet> serverResponse=null;
 
         //管理员已登录状态下进行
-        if(AccessJudger.isAdmin(httpSession)){
+        if(httpSession.getAttribute(ConstUtil.STAFF)!=null){
             serverResponse = bulletService.deleteButtleService(biliBullet);
 
         }
@@ -133,7 +140,7 @@ public class Controller_Bullet extends LogAdder {
     public ServerResponse<List<BiliBullet>> downloadBulletsByVideoId(HttpSession httpSession){
         ServerResponse<List<BiliBullet>> serverResponse = null;
 
-        if(AccessJudger.isStaff(httpSession)){
+        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.BULLET_QUERY))){
 
