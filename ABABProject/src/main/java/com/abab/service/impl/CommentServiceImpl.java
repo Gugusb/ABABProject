@@ -3,24 +3,49 @@ package com.abab.service.impl;
 import com.abab.common.ServerResponse;
 import com.abab.entity.BiliComment;
 import com.abab.entity.BiliVideo;
+import com.abab.mapper.CommentMapper;
+import com.abab.service.CommentService;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.abab.service.CommentService;
-import com.abab.mapper.CommentMapper;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
-* @author 故故sb
-* @description 针对表【comment】的数据库操作Service实现
-* @createDate 2022-09-04 16:10:38
-*/
+ * @author 故故sb
+ * @description 针对表【comment】的数据库操作Service实现
+ * @createDate 2022-09-04 16:10:38
+ */
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, BiliComment>
-    implements CommentService{
+        implements CommentService {
+
+    @Override
+    public ServerResponse<List<BiliComment>> getCommentsService(){
+        ServerResponse<List<BiliComment>> serverResponse = null;
+
+        List<BiliComment> biliCommentList=null;
+
+        QueryWrapper qe = new QueryWrapper();
+        qe.isNotNull("id" );
+        biliCommentList = this.list(qe);
+
+        if(!EmptyJudger.isEmpty(biliCommentList)){
+            if(biliCommentList.isEmpty()){
+                serverResponse =ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+            }
+            else
+                serverResponse = ServerResponse.createRespBySuccess(biliCommentList);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+        }
+
+        return serverResponse;
+    }
 
     @Override
     public ServerResponse<List<BiliComment>> getCommentsByVideoIdService(BiliVideo biliVideo){
@@ -94,6 +119,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, BiliComment>
 
         return serverResponse;
     }
+
 
 }
 

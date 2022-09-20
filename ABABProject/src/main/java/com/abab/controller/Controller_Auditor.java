@@ -98,8 +98,6 @@ public class Controller_Auditor extends LogAdder {
         }
 
         if(serverResponse.isSuccess()){
-            super.addLogsForBack(httpSession,"通过ID查看相关管理员信息");
-
             httpSession.setAttribute(ConstUtil.AUDITOR_QUERY, serverResponse.getData());
             httpSession.setMaxInactiveInterval(30*60);
         }

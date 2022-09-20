@@ -1,16 +1,11 @@
 package com.abab.controller;
 
 import com.abab.common.ServerResponse;
-import com.abab.entity.BiliAuditor;
+import com.abab.entity.BiliComment;
 import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
-import com.abab.entity.BiliComment;
 import com.abab.service.CommentService;
-import com.abab.util.ConstUtil;
-import com.abab.util.EmptyJudger;
-import com.abab.util.ExcelDatasProduce;
-import com.abab.util.LogAdder;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.abab.util.*;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +24,25 @@ public class Controller_Comment extends LogAdder {
     @Autowired
     CommentService commentService;
 
+    @RequestMapping(value = "/comment/getcomments", method = RequestMethod.POST)
+    public ServerResponse<List<BiliComment>> getComments(HttpSession httpSession,
+                                                                  @RequestParam(defaultValue = "1") Integer pageIndex,
+                                                                  @RequestParam(defaultValue = "5") Integer pageSize){
+        ServerResponse<List<BiliComment>> serverResponse = null;
+
+        PageHelper.startPage(pageIndex, pageSize);
+
+        serverResponse = commentService.getCommentsService();
+
+
+        if(serverResponse.isSuccess()){
+            httpSession.setAttribute(ConstUtil.COMMENT_QUERY, serverResponse.getData());
+            httpSession.setMaxInactiveInterval(30*60);
+        }
+
+        return serverResponse;
+    }
+
 
     @RequestMapping(value = "/comment/getcommentsbyvideoid", method = RequestMethod.POST)
     public ServerResponse<List<BiliComment>> getCommentsByVideoId(HttpSession httpSession,
@@ -39,7 +53,7 @@ public class Controller_Comment extends LogAdder {
 
         PageHelper.startPage(pageIndex, pageSize);
 
-        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+        if(AccessJudger.isStaff(httpSession)){
             serverResponse = commentService.getCommentsByVideoIdService(biliVideo);
         }
         else{
@@ -60,7 +74,7 @@ public class Controller_Comment extends LogAdder {
     public ServerResponse<BiliComment> postComment(HttpSession httpSession, BiliComment biliComment){
         ServerResponse<BiliComment> serverResponse = null;
 
-        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.USER))){
+        if(AccessJudger.isUser(httpSession)){
 
             //将用户id赋予评论对象
             biliComment.setUserid(((BiliUser)httpSession.getAttribute(ConstUtil.USER)).getUserid());
@@ -80,7 +94,7 @@ public class Controller_Comment extends LogAdder {
     public ServerResponse<BiliComment> deleteComment(HttpSession httpSession, BiliComment biliComment){
         ServerResponse<BiliComment> serverResponse = null;
 
-        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+        if(AccessJudger.isStaff(httpSession)){
             serverResponse = commentService.deleteCommentService(biliComment);
         }
         else{
@@ -98,7 +112,7 @@ public class Controller_Comment extends LogAdder {
     public ServerResponse<List<BiliComment>> downloadCommentsByVideoId(HttpSession httpSession){
         ServerResponse<List<BiliComment>> serverResponse = null;
 
-        if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+        if(AccessJudger.isStaff(httpSession)){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.COMMENT_QUERY))){
 
@@ -118,4 +132,5 @@ public class Controller_Comment extends LogAdder {
 
         return serverResponse;
     }
+
 }

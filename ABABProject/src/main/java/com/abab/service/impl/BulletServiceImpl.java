@@ -1,6 +1,7 @@
 package com.abab.service.impl;
 
 import com.abab.common.ServerResponse;
+import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
@@ -23,6 +24,27 @@ public class BulletServiceImpl extends ServiceImpl<BulletMapper, BiliBullet>
     implements BulletService{
 
     @Override
+    public ServerResponse<List<BiliBullet>> getBulletsService(){
+        ServerResponse<List<BiliBullet>> serverResponse=null;
+
+        List<BiliBullet> biliBulletList=null;
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.isNotNull("id");
+        biliBulletList = this.list(queryWrapper);
+
+        if(!EmptyJudger.isEmpty(biliBulletList)){
+            serverResponse=ServerResponse.createRespBySuccess(biliBulletList);
+
+        }
+        else{
+            serverResponse=ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+
+        }
+        return serverResponse;
+    }
+
+    @Override
     public ServerResponse<List<BiliBullet>> getBulletsByVideoIdService(BiliVideo biliVideo){
         ServerResponse<List<BiliBullet>> serverResponse=null;
 
@@ -43,6 +65,34 @@ public class BulletServiceImpl extends ServiceImpl<BulletMapper, BiliBullet>
             else{
                 serverResponse=ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
                 System.out.println("当前videoid："+biliVideo.getVideoid());
+
+            }
+        }
+
+        return serverResponse;
+    }
+
+    @Override
+    public ServerResponse<List<BiliUser>> getBulletsByIdService(BiliUser biliUser){
+        ServerResponse<List<BiliUser>> serverResponse=null;
+
+        List<BiliUser> biliBulletList=null;
+
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            serverResponse =ServerResponse.createByErrorMessage("userid" + ConstUtil.NOTALLOW_EMPTY);
+        }
+        else{
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("userid", biliUser.getUserid());
+            biliBulletList = this.list(queryWrapper);
+
+            if(!EmptyJudger.isEmpty(biliBulletList)){
+                serverResponse=ServerResponse.createRespBySuccess(biliBulletList);
+
+            }
+            else{
+                serverResponse=ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+                System.out.println("当前videoid："+biliUser.getUserid());
 
             }
         }

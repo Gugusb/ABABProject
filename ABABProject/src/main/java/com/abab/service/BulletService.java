@@ -2,6 +2,7 @@ package com.abab.service;
 
 import com.abab.common.ServerResponse;
 import com.abab.entity.BiliBullet;
+import com.abab.entity.BiliUser;
 import com.abab.entity.BiliVideo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -14,7 +15,11 @@ import java.util.List;
 */
 public interface BulletService extends IService<BiliBullet> {
 
+    ServerResponse<List<BiliBullet>> getBulletsService();
+
     ServerResponse<List<BiliBullet>> getBulletsByVideoIdService(BiliVideo biliVideo);
+
+    ServerResponse<List<BiliUser>> getBulletsByIdService(BiliUser biliUser);
 
     ServerResponse<BiliBullet> postBulletService(BiliBullet biliBullet);
 
