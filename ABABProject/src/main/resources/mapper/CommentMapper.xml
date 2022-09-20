@@ -11,10 +11,12 @@
             <result property="videoid" column="videoId" jdbcType="VARCHAR"/>
             <result property="commenttime" column="commentTime" jdbcType="TIMESTAMP"/>
             <result property="memo" column="memo" jdbcType="VARCHAR"/>
+            <result property="favour" column="favour" jdbcType="BIGINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,content,userId,
-        videoId,commentTime,memo
+        videoId,commentTime,memo,
+        favour
     </sql>
 </mapper>

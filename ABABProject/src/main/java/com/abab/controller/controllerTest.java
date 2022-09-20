@@ -1,14 +1,11 @@
 package com.abab.controller;
 
-import com.abab.common.ServerResponse;
 import com.abab.entity.BiliComment;
 import com.abab.entity.BiliLogs;
 import com.abab.entity.BiliUser;
-import com.abab.entity.BiliVideo;
 import com.abab.service.BiliUserService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.abab.util.RegexUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +21,10 @@ public class controllerTest {
     @Autowired
     Controller_Logs controller_logs;
 
-    @RequestMapping(value = "/test/logs", method = RequestMethod.POST)
+    @RequestMapping(value = "/test/regex", method = RequestMethod.POST)
     public Object hellologs(HttpSession httpSession, BiliLogs biliLogs){
-        return null;
+        return RegexUtil.getImageRelativePath("home/ubuntu/photos/asdawdasd.png") + "\n" +
+                RegexUtil.getImageRelativePath("home\\ubuntu\\photos\\asdawdasd.png");
     }
 
     /**

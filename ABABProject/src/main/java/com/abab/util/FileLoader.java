@@ -12,8 +12,8 @@ public class FileLoader {
         try {
             File file = new File(path, UUIDMaker.generationFileName()+ Objects.requireNonNull(video.getOriginalFilename()).substring(video.getOriginalFilename().lastIndexOf(".")));
             video.transferTo(file);
-            String newPath = file.getPath();
-            return ServerResponse.createRespBySuccess(newPath);
+            String newPath = file.getPath().replace("\\", "/");
+            return ServerResponse.createRespBySuccess(RegexUtil.getVideoRelativePath(newPath));
         } catch (IOException e) {
             return ServerResponse.createByErrorMessage("视频上传错误！");
         }
@@ -23,8 +23,8 @@ public class FileLoader {
         try {
             File file = new File(path, UUIDMaker.generationFileName()+ Objects.requireNonNull(image.getOriginalFilename()).substring(image.getOriginalFilename().lastIndexOf(".")));
             image.transferTo(file);
-            String newPath = file.getPath();
-            return ServerResponse.createRespBySuccess(newPath);
+            String newPath = file.getPath().replace("\\", "/");
+            return ServerResponse.createRespBySuccess(RegexUtil.getImageRelativePath(newPath));
         } catch (IOException e) {
             System.out.println(e);
             return ServerResponse.createByErrorMessage("图片上传错误！");

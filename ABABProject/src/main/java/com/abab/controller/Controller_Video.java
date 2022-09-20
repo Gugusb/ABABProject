@@ -101,6 +101,16 @@ public class Controller_Video extends LogAdder {
         return serverResponse;
     }
 
+    @RequestMapping(value = "/video/getvideos", method = RequestMethod.POST)
+    public ServerResponse<List<BiliVideo>> getVideos(HttpSession httpSession,
+                                                     @RequestParam(defaultValue = "1") Integer pageIndex,
+                                                     @RequestParam(defaultValue = "5") Integer pageSize){
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        return ServerResponse.createRespBySuccess(biliVideoService.list());
+    }
+
     @RequestMapping(value = "/video/getvideosbyuserid", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getVideosByUserId(HttpSession httpSession,
                                                              BiliUser biliUser,
@@ -193,5 +203,20 @@ public class Controller_Video extends LogAdder {
             super.addLogsForBack(httpSession, "根据标题查询 " + biliVideo.getVideotitle() + " 视频");
         }
         return serverResponse;
+    }
+
+    @RequestMapping(value = "/video/deletevideo", method = RequestMethod.POST)
+    public ServerResponse<Boolean> cancelVideo(HttpSession httpSession, BiliVideo biliVideo){
+        if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage("需要传入videoid");
+        }
+        if(EmptyJudger.isEmpty(biliVideoService.getById(biliVideo.getVideoid()))){
+            return ServerResponse.createByErrorMessage("无效的视频id");
+        }
+        biliVideoService.removeById(biliVideo.getVideoid());
+        return ServerResponse.createRespBySuccess(true);
     }
 }

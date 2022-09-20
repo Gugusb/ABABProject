@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class RegexUtil {
     public static String getImageRelativePath(String absolutePath){
-        String pattern="//photos//.*";
+        String pattern="\\/photos\\/.*";
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(absolutePath);
         if(m.find()){

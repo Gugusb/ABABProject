@@ -3,6 +3,7 @@ package com.abab.service.impl;
 import com.abab.common.ServerResponse;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
+import com.abab.util.MD5Util;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.abab.entity.BiliUser;
@@ -36,14 +37,15 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
         BiliUser user = null;
 
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("userid", biliUser.getUserid());
+        queryWrapper.eq("username", biliUser.getUsername());
 
         user = this.getOne(queryWrapper);
 
-        if(user==null){
+        if(user == null){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
         }else{
-            if(user.getPassword().equals(biliUser.getPassword())){
+            String psw = MD5Util.getMD5(biliUser.getPassword());
+            if(user.getPassword().equals(psw)){
                 return ServerResponse.createRespBySuccess(user);
             }else{
                 return ServerResponse.createByErrorMessage(ConstUtil.WRONG_PASSWORD);
@@ -96,6 +98,9 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
             biliUser.setGender(1);
         }
         biliUser.setUserrole(1);
+
+        //加密用户密码
+        biliUser.setPassword(MD5Util.getMD5(biliUser.getPassword()));
 
         //向数据库存储
         this.save(biliUser);

@@ -11,7 +11,6 @@ import com.abab.util.EmptyJudger;
 import com.abab.util.LogAdder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
-import kotlin.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
-import javax.xml.crypto.Data;
 import java.util.*;
 
 @RestController
@@ -166,16 +164,12 @@ public class Controller_User extends LogAdder {
     @RequestMapping(value = "/user/getuserinfobyid", method = RequestMethod.POST)
     public ServerResponse<List<BiliUser>> getUserInfoById(HttpSession httpSession, BiliUser biliUser){
         //权限查看
-        if(!AccessJudger.isStaff(httpSession)){
-            if(!AccessJudger.isUser(httpSession)){
-                return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
-            }
-        }
-
         ServerResponse<List<BiliUser>> serverResponse = biliUserService.getUserInfoByIdService(biliUser);
         if(serverResponse.isSuccess()){
             //写入日志
-            super.addLogsForBack(httpSession, "通过用户ID查询用户");
+            if(AccessJudger.isStaff(httpSession)){
+                super.addLogsForBack(httpSession, "通过用户ID查询用户");
+            }
         }
         return serverResponse;
     }
