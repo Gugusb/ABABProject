@@ -56,8 +56,8 @@ public class Controller_User extends LogAdder {
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @RequestMapping(value = "/user/register", method = RequestMethod.POST)
-    public ServerResponse<BiliUser> register(HttpSession httpSession, BiliUser biliUser){
-        ServerResponse<BiliUser> serverResponse = biliUserService.registerService(biliUser);
+    public ServerResponse<BiliUser> register(HttpSession httpSession, BiliUser biliUser, MultipartFile image){
+        ServerResponse<BiliUser> serverResponse = biliUserService.registerService(biliUser, image);
 
         if(serverResponse.isSuccess()){
             httpSession.setAttribute(ConstUtil.USER, serverResponse.getData());
@@ -260,4 +260,8 @@ public class Controller_User extends LogAdder {
         return serverResponse;
     }
 
+    @RequestMapping(value = "/user/getcollectedvideos", method = RequestMethod.POST)
+    public ServerResponse<List<BiliVideo>> getCollectVideos(HttpSession httpSession, BiliUser biliUser){
+        return biliVideoService.toBeVideos(biliUserService.getCollectVideoId(biliUser).getData());
+    }
 }

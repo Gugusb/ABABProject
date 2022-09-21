@@ -1,16 +1,20 @@
 package com.abab.service.impl;
 
 import com.abab.common.ServerResponse;
-import com.abab.util.ConstUtil;
-import com.abab.util.EmptyJudger;
-import com.abab.util.MD5Util;
+import com.abab.entity.BiliVideo;
+import com.abab.entity.Collection;
+import com.abab.service.BiliVideoService;
+import com.abab.service.CollectionService;
+import com.abab.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.abab.entity.BiliUser;
 import com.abab.service.BiliUserService;
 import com.abab.mapper.BiliUserMapper;
 import kotlin.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +29,9 @@ import java.util.List;
 @Service
 public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
     implements BiliUserService{
+
+    @Autowired
+    CollectionService collectionService;
 
     /**
      * 登录服务
@@ -60,7 +67,7 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @Override
-    public ServerResponse<BiliUser> registerService(BiliUser biliUser){
+    public ServerResponse<BiliUser> registerService(BiliUser biliUser, MultipartFile image){
         //检查用户信息是否全面
         ArrayList<Pair<Object, String>> l = new ArrayList<>();
         l.add(new Pair<>(biliUser.getUsername(), "用户名称"));
@@ -90,6 +97,15 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
                 }
             }
         }
+
+        //尝试上传头像
+        ServerResponse<BiliUser> upload_response = this.uploadUserHead(image);
+        if(!upload_response.isSuccess()){
+            return upload_response;
+        }
+
+        //上传成功 保存头像先
+        biliUser.setUseravatar(upload_response.getData().getUseravatar());
         //填充必要信息
         if(biliUser.getGender() == null){
             biliUser.setGender(1);
@@ -267,6 +283,40 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
             this.updateById(user);
         }
         return ServerResponse.createRespBySuccess(user);
+    }
+
+    @Override
+    public ServerResponse<BiliUser> uploadUserHead(MultipartFile image) {
+        if(image.getSize() > VideoConstUtil.MAX_IMAGE_SIZE){
+            return ServerResponse.createByErrorMessage("过大的头像文件");
+        }
+        ServerResponse<String> image_response = FileLoader.uploadImage(image, VideoConstUtil.IMAGE_PATH);
+
+        if(!image_response.isSuccess()){
+            return ServerResponse.createByErrorMessage("头像图片文件上传失败");
+        }
+
+        //返回头像的路径
+        BiliUser biliUser = new BiliUser();
+        biliUser.setUseravatar(image_response.getData());
+        return ServerResponse.createRespBySuccess(biliUser);
+
+    }
+
+    @Override
+    public ServerResponse<List<Collection>> getCollectVideoId(BiliUser biliUser){
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        BiliUser user = this.getById(biliUser.getUserid());
+        if(EmptyJudger.isEmpty(user)){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("userid", user.getUserid());
+        List<Collection> collections = collectionService.list(queryWrapper);
+
+        return ServerResponse.createRespBySuccess(collections);
     }
 }
 

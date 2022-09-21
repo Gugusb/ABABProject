@@ -6,11 +6,14 @@ import com.abab.entity.BiliVideo;
 import com.abab.entity.BiliDictionary;
 import com.abab.service.BiliUserService;
 import com.abab.service.BiliVideoService;
+import com.abab.util.AccessJudger;
 import com.abab.util.ConstUtil;
 import com.abab.util.EmptyJudger;
 import com.abab.util.LogAdder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +25,7 @@ import java.lang.constant.Constable;
 import java.util.List;
 
 @RestController
+@Api("视频控制类")
 public class Controller_Video extends LogAdder {
 
     @Autowired
@@ -111,6 +115,15 @@ public class Controller_Video extends LogAdder {
         return ServerResponse.createRespBySuccess(biliVideoService.list());
     }
 
+    @RequestMapping(value = "/video/getvideosbyorder", method = RequestMethod.POST)
+    public ServerResponse<List<BiliVideo>> getVideosWithOrderd(HttpSession httpSession,
+                                                               @RequestParam(value = "orderType") String orderType,
+                                                               @RequestParam(value = "isAsc", defaultValue = "true")Boolean isAsc,
+                                                               @RequestParam(defaultValue = "1", required = false) Integer pageIndex,
+                                                               @RequestParam(defaultValue = "5", required = false) Integer pageSize){
+        return biliVideoService.getVideosWithOrderd(orderType, isAsc);
+    }
+
     @RequestMapping(value = "/video/getvideosbyuserid", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getVideosByUserId(HttpSession httpSession,
                                                              BiliUser biliUser,
@@ -165,7 +178,7 @@ public class Controller_Video extends LogAdder {
 
     @RequestMapping(value = "/video/getvideosbyauditstate", method = RequestMethod.POST)
     public ServerResponse<List<BiliVideo>> getVideosByAuditState(HttpSession httpSession,
-                                                                 BiliDictionary dictionary,
+                                                                 Integer auditState,
                                                                  String byId,
                                                                  String byTitle,
                                                                  String byUser,
@@ -174,7 +187,7 @@ public class Controller_Video extends LogAdder {
         if(EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
             return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
         }
-        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getVideosByAuditStateService(dictionary, byId, byTitle, byUser, pageIndex, pageSize);
+        ServerResponse<List<BiliVideo>> serverResponse = biliVideoService.getVideosByAuditStateService(auditState, byId, byTitle, byUser, pageIndex, pageSize);
         if(serverResponse.isSuccess()){
             //写入日志
             super.addLogsForBack(httpSession, "根据审核状态查找视频");
@@ -227,5 +240,65 @@ public class Controller_Video extends LogAdder {
         }
         biliVideoService.removeById(biliVideo.getVideoid());
         return ServerResponse.createRespBySuccess(true);
+    }
+
+    @RequestMapping(value = "/video/likevideo", method = RequestMethod.POST)
+    public ServerResponse<Long> likeVideo(HttpSession httpSession, BiliVideo biliVideo){
+        if(!AccessJudger.isUser(httpSession)){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
+        }
+        ServerResponse<Long> serverResponse = biliVideoService.likeVideo(biliVideo, (BiliUser) httpSession.getAttribute(ConstUtil.USER));
+
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/video/coinvideo", method = RequestMethod.POST)
+    public ServerResponse<Long> coinVideo(HttpSession httpSession, BiliVideo biliVideo, @RequestParam(defaultValue = "1")Long coinCount){
+        if(!AccessJudger.isUser(httpSession)){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
+        }
+        ServerResponse<Long> serverResponse = biliVideoService.coinVideo(biliVideo, (BiliUser) httpSession.getAttribute(ConstUtil.USER), coinCount);
+
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/video/collectvideo", method = RequestMethod.POST)
+    public ServerResponse<Long> collectVideo(HttpSession httpSession, BiliVideo biliVideo){
+        if(!AccessJudger.isUser(httpSession)){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
+        }
+        ServerResponse<Long> serverResponse = biliVideoService.collectVideo(biliVideo, (BiliUser) httpSession.getAttribute(ConstUtil.USER));
+
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/video/auditvideo", method = RequestMethod.POST)
+    public ServerResponse<BiliVideo> auditVideo(HttpSession httpSession, BiliVideo biliVideo, @RequestParam(defaultValue = "1")Integer auditState){
+        if(!AccessJudger.isStaff(httpSession)){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<BiliVideo> serverResponse = biliVideoService.auditVideo(biliVideo, auditState);
+
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/video/onshelvevideo", method = RequestMethod.POST)
+    public ServerResponse<BiliVideo> onShelveVideo(HttpSession httpSession, BiliVideo biliVideo){
+        if(!AccessJudger.isStaff(httpSession)){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<BiliVideo> serverResponse = biliVideoService.onShelveVideo(biliVideo);
+
+        return serverResponse;
+    }
+
+    @RequestMapping(value = "/video/downshelvevideo", method = RequestMethod.POST)
+    public ServerResponse<BiliVideo> downShelveVideo(HttpSession httpSession, BiliVideo biliVideo){
+        if(!AccessJudger.isStaff(httpSession)){
+            return ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+        ServerResponse<BiliVideo> serverResponse = biliVideoService.downShelveVideo(biliVideo);
+
+        return serverResponse;
     }
 }

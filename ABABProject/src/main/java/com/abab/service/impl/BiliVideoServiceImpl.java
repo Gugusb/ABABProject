@@ -1,9 +1,10 @@
 package com.abab.service.impl;
 
 import com.abab.common.ServerResponse;
-import com.abab.entity.BiliDictionary;
 import com.abab.entity.BiliUser;
+import com.abab.entity.Collection;
 import com.abab.service.BiliUserService;
+import com.abab.service.CollectionService;
 import com.abab.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,6 +31,9 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     implements BiliVideoService{
     @Autowired
     BiliUserService biliUserService;
+
+    @Autowired
+    CollectionService collectionService;
 
     @Override
     public ServerResponse<BiliVideo> uploadVideo(MultipartFile video, MultipartFile image) {
@@ -264,20 +268,22 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
     }
 
     @Override
-    public ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary,
+    public ServerResponse<List<BiliVideo>> getVideosByAuditStateService(Integer auditState,
                                                                         String byId,
                                                                         String byTitle,
                                                                         String byUser,
                                                                         Integer pageIndex,
                                                                         Integer pageSize){
-        //检查是否是相关描述
-        if(dictionary.getMemo() != ConstUtil.MEMO_AUDIT_STATE){
-            return ServerResponse.createByErrorMessage(ConstUtil.WRONG_MEMO);
+        int aud = 5;
+        if(auditState == 1){
+            aud = 7;
+        }else if(auditState == 2){
+            aud = 6;
         }
         //查找
         PageHelper.startPage(pageIndex, pageSize);
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("auditing", dictionary.getKey());
+        queryWrapper.eq("auditing", aud);
 
         if(byId != null){
             queryWrapper.eq("videoid", byId);
@@ -327,6 +333,235 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
         List<BiliVideo> list = this.list(queryWrapper);
 
         return ServerResponse.createRespBySuccess(list);
+    }
+
+    @Override
+    public ServerResponse<Long> likeVideo(BiliVideo biliVideo, BiliUser biliUser) {
+        //检查
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(biliUserService.getById(biliUser.getUserid()))){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("videoid", biliVideo.getVideoid());
+        BiliVideo video = this.getOne(qw);
+
+        if(EmptyJudger.isEmpty(video)){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+
+        Long num = 0l;
+        if(video.getThumbs() == null){
+            video.setThumbs(1l);
+            num = 1l;
+        }else {
+            video.setThumbs(video.getThumbs() + 1);
+            num = video.getThumbs();
+        }
+
+        this.updateById(video);
+
+        return ServerResponse.createRespBySuccess(num);
+    }
+
+    @Override
+    public ServerResponse<Long> coinVideo(BiliVideo biliVideo, BiliUser biliUser, Long coinCount) {
+        //检查
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(biliUserService.getById(biliUser.getUserid()))){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("videoid", biliVideo.getVideoid());
+        BiliVideo video = this.getOne(qw);
+
+        if(EmptyJudger.isEmpty(video)){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+
+        Long num = 0l;
+        if(video.getCoin() == null){
+            video.setCoin(Long.valueOf((coinCount)));
+            num = coinCount;
+        }else {
+            video.setCoin(video.getCoin() + Long.valueOf((coinCount)));
+            num = video.getCoin();
+        }
+
+        this.updateById(video);
+
+        return ServerResponse.createRespBySuccess(num);
+    }
+
+    @Override
+    public ServerResponse<Long> collectVideo(BiliVideo biliVideo, BiliUser biliUser) {
+        //检查
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(biliUserService.getById(biliUser.getUserid()))){
+            return ServerResponse.createByErrorMessage(ConstUtil.USER_UNEXIST);
+        }
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("videoid", biliVideo.getVideoid());
+        BiliVideo video = this.getOne(qw);
+        if(EmptyJudger.isEmpty(video)){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+
+        //联表查找
+        QueryWrapper qw2 = new QueryWrapper();
+        qw2.eq("userid", biliUser.getUserid());
+        qw2.eq("videoid", video.getVideoid());
+        Long count = collectionService.count(qw2);
+        if(count > 0){
+            return ServerResponse.createByErrorMessage("该用户已经收藏过此视频");
+        }
+
+        Long num = 0l;
+        if(video.getCollection() == null){
+            video.setCollection(1l);
+            num = 1l;
+        }else {
+            video.setCollection(video.getCollection() + 1);
+            num = video.getCollection();
+        }
+        Collection collection = new Collection();
+        collection.setVideoid(video.getVideoid());
+        collection.setUserid(biliUser.getUserid());
+        collection.setCollecttime(new Date());
+
+        //更新视频信息
+        this.updateById(video);
+        //更新联表信息
+        collectionService.save(collection);
+
+        return ServerResponse.createRespBySuccess(num);
+    }
+
+    @Override
+    public ServerResponse<BiliVideo> auditVideo(BiliVideo biliVideo, Integer auditState) {
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("videoid", biliVideo.getVideoid());
+        BiliVideo video = this.getOne(qw);
+
+        if(EmptyJudger.isEmpty(video)){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+
+        if(video.getAuditingid() != 5){
+            return ServerResponse.createByErrorMessage("视频已审核，无需再次审核");
+        }
+
+        if(auditState == 1){
+            video.setAuditingid(7);
+            video.setGrounding(9);
+        }else{
+            video.setAuditingid(6);
+        }
+
+        this.updateById(video);
+
+        return ServerResponse.createRespBySuccess(video);
+    }
+
+    @Override
+    public ServerResponse<BiliVideo> onShelveVideo(BiliVideo biliVideo) {
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("videoid", biliVideo.getVideoid());
+        BiliVideo video = this.getOne(qw);
+
+        if(EmptyJudger.isEmpty(video)){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+
+        if(video.getAuditingid() != 7){
+            return ServerResponse.createByErrorMessage("视频未审核或审核未通过，无法上架");
+        }
+
+        if(video.getGrounding() == 8){
+            return ServerResponse.createByErrorMessage("视频已上架，无法重复上架");
+        }
+
+        video.setGrounding(8);
+
+        this.updateById(video);
+
+        return ServerResponse.createRespBySuccess(video);
+    }
+
+    @Override
+    public ServerResponse<BiliVideo> downShelveVideo(BiliVideo biliVideo) {
+        if(EmptyJudger.isEmpty(biliVideo.getVideoid())){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("videoid", biliVideo.getVideoid());
+        BiliVideo video = this.getOne(qw);
+
+        if(EmptyJudger.isEmpty(video)){
+            return ServerResponse.createByErrorMessage(ConstUtil.VIDEO_UNEXIST);
+        }
+
+        if(video.getAuditingid() != 7){
+            return ServerResponse.createByErrorMessage("这个视频未审核或审核未通过，你是怎么搞到他的？？？？？？");
+        }
+
+        if(video.getGrounding() == 9){
+            return ServerResponse.createByErrorMessage("视频已下架，无法重复下架");
+        }
+
+        video.setGrounding(9);
+
+        this.updateById(video);
+
+        return ServerResponse.createRespBySuccess(video);
+    }
+
+    @Override
+    public ServerResponse<List<BiliVideo>> getVideosWithOrderd(String orderType, Boolean isAsc) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        if(isAsc){
+            queryWrapper.orderByAsc(orderType);
+        }else{
+            queryWrapper.orderByDesc(orderType);
+        }
+        List<BiliVideo> list = this.list(queryWrapper);
+        return ServerResponse.createRespBySuccess(list);
+    }
+
+    @Override
+    public ServerResponse<List<BiliVideo>> toBeVideos(List<Collection> cols){
+        List<BiliVideo> videos = new ArrayList<>();
+        for(Collection i : cols){
+            String av = i.getVideoid();
+            QueryWrapper qw2 = new QueryWrapper();
+            qw2.eq("videoid", av);
+            BiliVideo video = this.getOne(qw2);
+            if(!EmptyJudger.isEmpty(video)){
+                videos.add(video);
+            }
+        }
+        return ServerResponse.createRespBySuccess(videos);
     }
 
 }

@@ -4,6 +4,7 @@ import com.abab.entity.BiliComment;
 import com.abab.entity.BiliLogs;
 import com.abab.entity.BiliUser;
 import com.abab.service.BiliUserService;
+import com.abab.util.MD5Util;
 import com.abab.util.RegexUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,4 +54,9 @@ public class controllerTest {
     public Object twoElem(BiliUser biliUser, BiliComment biliComment){
         return biliUser.getUsername() + "    " + biliUser.getUserid() + "    " + biliComment.getUserid();
     }
+    @RequestMapping(value = "/test/md5", method = RequestMethod.POST)
+    public Object md5(String psw){
+        return MD5Util.getMD5(psw);
+    }
+
 }

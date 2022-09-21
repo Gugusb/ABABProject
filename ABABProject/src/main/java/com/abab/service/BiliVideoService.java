@@ -1,9 +1,7 @@
 package com.abab.service;
 
 import com.abab.common.ServerResponse;
-import com.abab.entity.BiliDictionary;
-import com.abab.entity.BiliUser;
-import com.abab.entity.BiliVideo;
+import com.abab.entity.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,7 +42,7 @@ public interface BiliVideoService extends IService<BiliVideo> {
                                                             Integer pageIndex,
                                                             Integer pageSize);
 
-    ServerResponse<List<BiliVideo>> getVideosByAuditStateService(BiliDictionary dictionary,
+    ServerResponse<List<BiliVideo>> getVideosByAuditStateService(Integer auditState,
                                                                  String byId,
                                                                  String byTitle,
                                                                  String byUser,
@@ -55,5 +53,19 @@ public interface BiliVideoService extends IService<BiliVideo> {
 
     ServerResponse<List<BiliVideo>> getVideosByTitleService(BiliVideo biliVideo, Integer pageIndex, Integer pageSize);
 
+    ServerResponse<Long> likeVideo(BiliVideo biliVideo, BiliUser biliUser);
 
+    ServerResponse<Long> coinVideo(BiliVideo biliVideo, BiliUser biliUser, Long coinCount);
+
+    ServerResponse<Long> collectVideo(BiliVideo biliVideo, BiliUser biliUser);
+
+    ServerResponse<BiliVideo> auditVideo(BiliVideo biliVideo, Integer auditState);
+
+    ServerResponse<BiliVideo> onShelveVideo(BiliVideo biliVideo);
+
+    ServerResponse<BiliVideo> downShelveVideo(BiliVideo biliVideo);
+
+    ServerResponse<List<BiliVideo>> getVideosWithOrderd(String orderType, Boolean isAsc);
+
+    ServerResponse<List<BiliVideo>> toBeVideos(List<Collection> cols);
 }
