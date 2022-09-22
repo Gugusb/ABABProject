@@ -70,6 +70,32 @@ public class Controller_Comment extends LogAdder {
         return serverResponse;
     }
 
+    @RequestMapping(value = "/comment/getcommentsbyuserid", method = RequestMethod.POST)
+    public ServerResponse<List<BiliUser>> getCommentsById(HttpSession httpSession,
+                                                                  BiliUser biliUser,
+                                                                  @RequestParam(defaultValue = "1") Integer pageIndex,
+                                                                  @RequestParam(defaultValue = "5") Integer pageSize){
+        ServerResponse<List<BiliUser>> serverResponse = null;
+
+        PageHelper.startPage(pageIndex, pageSize);
+
+        if(AccessJudger.isStaff(httpSession)){
+            serverResponse = commentService.getCommentsByIdService(biliUser);
+        }
+        else{
+            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
+        }
+
+        if(serverResponse.isSuccess()){
+            super.addLogsForBack(httpSession,"通过用户ID查看相关评论");
+
+            httpSession.setAttribute(ConstUtil.COMMENT_QUERY, serverResponse.getData());
+            httpSession.setMaxInactiveInterval(30*60);
+        }
+
+        return serverResponse;
+    }
+
     @RequestMapping(value = "/comment/postcomment", method = RequestMethod.POST)
     public ServerResponse<BiliComment> postComment(HttpSession httpSession, BiliComment biliComment){
         ServerResponse<BiliComment> serverResponse = null;
@@ -109,17 +135,16 @@ public class Controller_Comment extends LogAdder {
     }
 
     @RequestMapping(value = "/comment/downloadcommentsbyvideoid", method = RequestMethod.POST)
-    public ServerResponse<List<BiliComment>> downloadCommentsByVideoId(HttpSession httpSession){
-        ServerResponse<List<BiliComment>> serverResponse = null;
+    public ServerResponse<String> downloadCommentsByVideoId(HttpSession httpSession){
+        ServerResponse<String> serverResponse = null;
 
         if(AccessJudger.isStaff(httpSession)){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.COMMENT_QUERY))){
 
-                if(ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_COMMENT_INDEX, httpSession.getAttribute(ConstUtil.COMMENT_QUERY))){
-                    serverResponse = ServerResponse.createRespBySuccess((List<BiliComment>) httpSession.getAttribute(ConstUtil.COMMENT_QUERY));
-                }
-                else serverResponse = ServerResponse.createByErrorMessage(ConstUtil.EXCEL_CREATE_FAILURE);
+                String filepath = ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_COMMENT_INDEX, httpSession.getAttribute(ConstUtil.COMMENT_QUERY));
+                serverResponse = ServerResponse.createRespBySuccess(filepath);
+                System.out.println("评论下载: "+filepath);// /excels/filename.xls;
 
             }
             else{

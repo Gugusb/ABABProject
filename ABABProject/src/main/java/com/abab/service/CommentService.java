@@ -20,6 +20,8 @@ public interface CommentService extends IService<BiliComment> {
 
     ServerResponse<List<BiliComment>> getCommentsByVideoIdService(BiliVideo biliVideo);
 
+    ServerResponse<List<BiliUser>> getCommentsByIdService(BiliUser biliUser);
+
     ServerResponse<BiliComment> postCommentService(BiliComment biliComment);
 
     ServerResponse<BiliComment> deleteCommentService(BiliComment biliComment);

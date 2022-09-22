@@ -198,17 +198,15 @@ public class Controller_Auditor extends LogAdder {
     }
 
     @RequestMapping(value = "/auditor/downloadauditors", method = RequestMethod.POST)
-    public ServerResponse<List<BiliAuditor>> downloadAuditorsById(HttpSession httpSession){
-        ServerResponse<List<BiliAuditor>> serverResponse = null;
+    public ServerResponse<String> downloadAuditorsById(HttpSession httpSession){
+        ServerResponse<String> serverResponse = null;
 
         if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.AUDITOR_QUERY))){
 
-                if(ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_AUDITOR_INDEX, httpSession.getAttribute(ConstUtil.AUDITOR_QUERY))){
-                    serverResponse = ServerResponse.createRespBySuccess((List<BiliAuditor>) httpSession.getAttribute(ConstUtil.AUDITOR_QUERY));
-                }
-                else serverResponse = ServerResponse.createByErrorMessage(ConstUtil.EXCEL_CREATE_FAILURE);
+                String filepath = ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_AUDITOR_INDEX, httpSession.getAttribute(ConstUtil.AUDITOR_QUERY));
+                serverResponse = ServerResponse.createRespBySuccess(filepath);
 
             }
             else{

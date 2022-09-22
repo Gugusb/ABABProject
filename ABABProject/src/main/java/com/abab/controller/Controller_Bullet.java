@@ -137,17 +137,15 @@ public class Controller_Bullet extends LogAdder {
     }
 
     @RequestMapping(value = "/buttle/downloadbuttlesbyvideoid", method = RequestMethod.POST)
-    public ServerResponse<List<BiliBullet>> downloadBulletsByVideoId(HttpSession httpSession){
-        ServerResponse<List<BiliBullet>> serverResponse = null;
+    public ServerResponse<String> downloadBulletsByVideoId(HttpSession httpSession){
+        ServerResponse<String> serverResponse = null;
 
         if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.STAFF))){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.BULLET_QUERY))){
 
-                if(ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_BULLET_INDEX, httpSession.getAttribute(ConstUtil.BULLET_QUERY))){
-                    serverResponse = ServerResponse.createRespBySuccess((List<BiliBullet>) httpSession.getAttribute(ConstUtil.BULLET_QUERY));
-                }
-                else serverResponse = ServerResponse.createByErrorMessage(ConstUtil.EXCEL_CREATE_FAILURE);
+                String filepath = ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_BULLET_INDEX, httpSession.getAttribute(ConstUtil.BULLET_QUERY));
+                serverResponse = ServerResponse.createRespBySuccess(filepath);
 
             }
             else{

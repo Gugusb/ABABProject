@@ -60,19 +60,20 @@ public class ExcelDatasProduce {
         return titleName;
     }
 
-    private static int CreateExcel(ExcelData excelData){
+    private static String CreateExcel(ExcelData excelData){
         int rowIndex = 0;
 
         if(!EmptyJudger.isEmpty(excelData.getTitles()) && !EmptyJudger.isEmpty(excelData.getName()) && !EmptyJudger.isEmpty(excelData.getRows())){
             try {
-                rowIndex = ExcelUtil.GenerateExcel(excelData, ExcelAddress.FILE_PATH + ExcelAddress.createFileName());
-                return 0;
+                String file_name = ExcelAddress.FILE_PATH + ExcelAddress.createFileName();
+                rowIndex = ExcelUtil.GenerateExcel(excelData, file_name);
+                return file_name;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        return 1;
+        return null;
     }
 
     private static List<String> toTitles(Integer index){
@@ -83,7 +84,7 @@ public class ExcelDatasProduce {
         return titles;
     }
 
-    public static Boolean ProducerExcel(Integer index, Object data) {
+    public static String ProducerExcel(Integer index, Object data) {
 
         ExcelData excelData = new ExcelData();
 
@@ -116,7 +117,7 @@ public class ExcelDatasProduce {
         excelData.setTitles(titles);
         excelData.setRows(rows);
 
-        return CreateExcel(excelData) == 0;
+        return CreateExcel(excelData);
     }
 
 }

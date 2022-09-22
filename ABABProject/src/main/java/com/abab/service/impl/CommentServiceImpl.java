@@ -77,6 +77,35 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, BiliComment>
     }
 
     @Override
+    public ServerResponse<List<BiliUser>> getCommentsByIdService(BiliUser biliUser){
+        ServerResponse<List<BiliUser>> serverResponse = null;
+
+        List<BiliUser> biliCommentList=null;
+
+        if(EmptyJudger.isEmpty(biliUser.getUserid())){
+            serverResponse =ServerResponse.createByErrorMessage("userid" + ConstUtil.NOTALLOW_EMPTY);
+        }
+        else{
+            QueryWrapper qe = new QueryWrapper();
+            qe.eq("userid" , biliUser.getUserid());
+            biliCommentList = this.list(qe);
+
+            if(!EmptyJudger.isEmpty(biliCommentList)){
+                if(biliCommentList.isEmpty()){
+                    serverResponse =ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+                }
+                else
+                    serverResponse = ServerResponse.createRespBySuccess(biliCommentList);
+            }
+            else{
+                serverResponse = ServerResponse.createByErrorMessage(ConstUtil.DATA_UNEXIST);
+            }
+        }
+
+        return serverResponse;
+    }
+
+    @Override
     public ServerResponse<BiliComment> postCommentService(BiliComment biliComment){
         ServerResponse<BiliComment> serverResponse = null;
 

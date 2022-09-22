@@ -75,6 +75,11 @@ public class Controller_Logs {
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
         }
 
+        if(serverResponse.isSuccess()){
+            httpSession.setAttribute(ConstUtil.LOGS_QUERY, serverResponse.getData());
+            httpSession.setMaxInactiveInterval(30*60);
+        }
+
         return serverResponse;
     }
 
@@ -97,6 +102,11 @@ public class Controller_Logs {
         }
         else{
             serverResponse = ServerResponse.createByErrorMessage(ConstUtil.ADMIN_UNLOGIN);
+        }
+
+        if(serverResponse.isSuccess()){
+            httpSession.setAttribute(ConstUtil.LOGS_QUERY, serverResponse.getData());
+            httpSession.setMaxInactiveInterval(30*60);
         }
 
         return serverResponse;
@@ -124,17 +134,15 @@ public class Controller_Logs {
 
 
     @RequestMapping(value = "/logs/downloadalllogs", method = RequestMethod.POST)
-    public ServerResponse<List<BiliLogs>> downloadAllLogs(HttpSession httpSession){
-        ServerResponse<List<BiliLogs>> serverResponse = null;
+    public ServerResponse<String> downloadAllLogs(HttpSession httpSession){
+        ServerResponse<String> serverResponse = null;
 
         if(AccessJudger.isStaff(httpSession) && AccessJudger.isAdmin(httpSession)){
 
             if(!EmptyJudger.isEmpty(httpSession.getAttribute(ConstUtil.LOGS_QUERY))){
 
-                if(ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_LOG_INDEX, httpSession.getAttribute(ConstUtil.LOGS_QUERY))){
-                    serverResponse = ServerResponse.createRespBySuccess((List<BiliLogs>) httpSession.getAttribute(ConstUtil.LOGS_QUERY));
-                }
-                else serverResponse = ServerResponse.createByErrorMessage(ConstUtil.EXCEL_CREATE_FAILURE);
+                String filepath = ExcelDatasProduce.ProducerExcel(ConstUtil.EXCEL_LOG_INDEX, httpSession.getAttribute(ConstUtil.LOGS_QUERY));
+                serverResponse = ServerResponse.createRespBySuccess(filepath);
 
             }
             else{
