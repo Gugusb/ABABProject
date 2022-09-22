@@ -158,30 +158,4 @@ public class Controller_Comment extends LogAdder {
         return serverResponse;
     }
 
-    @RequestMapping(value = "/comment/getcommentsbyuserid", method = RequestMethod.POST)
-    public ServerResponse<List<BiliUser>> getCommentsById(HttpSession httpSession,
-                                                          BiliUser biliUser,
-                                                          @RequestParam(defaultValue = "1") Integer pageIndex,
-                                                          @RequestParam(defaultValue = "5") Integer pageSize){
-        ServerResponse<List<BiliUser>> serverResponse = null;
-
-        PageHelper.startPage(pageIndex, pageSize);
-
-        if(AccessJudger.isStaff(httpSession)){
-            serverResponse = commentService.getCommentsByIdService(biliUser);
-        }
-        else{
-            serverResponse = ServerResponse.createByErrorMessage(ConstUtil.STAFF_UNLOGIN);
-        }
-
-        if(serverResponse.isSuccess()){
-            super.addLogsForBack(httpSession,"通过用户ID查看相关评论");
-
-            httpSession.setAttribute(ConstUtil.COMMENT_QUERY, serverResponse.getData());
-            httpSession.setMaxInactiveInterval(30*60);
-        }
-
-        return serverResponse;
-    }
-
 }

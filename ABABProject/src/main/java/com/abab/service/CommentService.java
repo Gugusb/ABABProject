@@ -25,6 +25,4 @@ public interface CommentService extends IService<BiliComment> {
     ServerResponse<BiliComment> postCommentService(BiliComment biliComment);
 
     ServerResponse<BiliComment> deleteCommentService(BiliComment biliComment);
-
-    ServerResponse<List<BiliUser>> getCommentsByIdService(BiliUser biliUser);
 }
