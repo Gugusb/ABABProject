@@ -58,11 +58,41 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
         biliVideo.setVideopath(video_response.getData());
         biliVideo.setCoverimage(image_response.getData());
         return ServerResponse.createRespBySuccess(biliVideo);
+    }
+
+    @Override
+    public ServerResponse<String> uploadVideoFile(MultipartFile video) {
+        if(video.getSize() > VideoConstUtil.MAX_VIDEO_SIZE){
+            return ServerResponse.createByErrorMessage("过大的视频文件");
+        }
+        ServerResponse<String> video_response = FileLoader.uploadVideo(video, VideoConstUtil.VIDEO_PATH);
+
+        if(!video_response.isSuccess()){
+            return ServerResponse.createByErrorMessage("视频文件上传失败");
+        }
+
+        //返回封面和视频的路径
+        return ServerResponse.createRespBySuccess(video_response.getData());
+    }
+
+    @Override
+    public ServerResponse<String> uploadImageFile(MultipartFile image) {
+        if(image.getSize() > VideoConstUtil.MAX_IMAGE_SIZE){
+            return ServerResponse.createByErrorMessage("过大的封面文件");
+        }
+        ServerResponse<String> image_response = FileLoader.uploadImage(image, VideoConstUtil.IMAGE_PATH);
+
+        if(!image_response.isSuccess()){
+            return ServerResponse.createByErrorMessage("视频封面文件上传失败");
+        }
+
+        //返回路径
+        return ServerResponse.createRespBySuccess(image_response.getData());
 
     }
 
     @Override
-    public ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo, MultipartFile videoFile, MultipartFile imageFile){
+    public ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo, String imagePath, String videoPath){
         //检查用户信息是否全面
         ArrayList<Pair<Object, String>> l = new ArrayList<>();
         l.add(new Pair<>(biliVideo.getVideotitle(), "视频标题"));
@@ -78,8 +108,8 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
         ArrayList<Pair<Object, Integer>> Legality = new ArrayList<>();
         Legality.add(new Pair<>(biliVideo.getVideotitle(), 50));
         Legality.add(new Pair<>(biliVideo.getVideointrbriefing(), 200));
-        Legality.add(new Pair<>(biliVideo.getVideopath(), 500));
-        Legality.add(new Pair<>(biliVideo.getCoverimage(), 300));
+        //Legality.add(new Pair<>(biliVideo.getVideopath(), 500));
+        //Legality.add(new Pair<>(biliVideo.getCoverimage(), 300));
         Legality.add(new Pair<>(biliVideo.getMemo(), 255));
         for (Pair<Object, Integer> p : Legality){
             if(p.getFirst() != null){
@@ -89,16 +119,10 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
             }
         }
 
-        //尝试上传文件
-        ServerResponse<BiliVideo> upload_response = this.uploadVideo(videoFile, imageFile);
-        if(!upload_response.isSuccess()){
-            return upload_response;
-        }
-
         //数据补全
         //上传成功 填充视频路径以及封面路径
-        biliVideo.setCoverimage(upload_response.getData().getCoverimage());
-        biliVideo.setVideopath(upload_response.getData().getVideopath());
+        biliVideo.setCoverimage(imagePath);
+        biliVideo.setVideopath(videoPath);
         //随机生成AV号
         String av = UUIDMaker.generationAV();
         biliVideo.setVideoid(av);
@@ -219,6 +243,7 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
         QueryWrapper queryWrapper = new QueryWrapper();
         //组装qw
         queryWrapper.eq("grounding", 9);
+        queryWrapper.eq("auditingid", 7);
         //按照ID查找
         if(byId != null){
             queryWrapper.eq("videoid", byId);
@@ -248,6 +273,7 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
 
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("grounding", 8);
+        queryWrapper.eq("auditingid", 7);
         //按照ID查找
         if(byId != null){
             queryWrapper.eq("videoid", byId);
@@ -283,7 +309,7 @@ public class BiliVideoServiceImpl extends ServiceImpl<BiliVideoMapper, BiliVideo
         //查找
         PageHelper.startPage(pageIndex, pageSize);
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("auditing", aud);
+        queryWrapper.eq("auditingid", aud);
 
         if(byId != null){
             queryWrapper.eq("videoid", byId);

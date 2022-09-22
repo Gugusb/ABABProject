@@ -14,9 +14,13 @@ import java.util.List;
 */
 public interface BiliVideoService extends IService<BiliVideo> {
 
+    ServerResponse<String> uploadVideoFile(MultipartFile video);
+
     ServerResponse<BiliVideo> uploadVideo(MultipartFile video, MultipartFile image);
 
-    ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo, MultipartFile videoFile, MultipartFile imageFile);
+    ServerResponse<String> uploadImageFile(MultipartFile image);
+
+    ServerResponse<BiliVideo> submitVideoService(BiliUser biliUser, BiliVideo biliVideo, String imagePath, String videoPath);
 
     ServerResponse<BiliVideo> openVideoService(BiliVideo biliVideo);
 

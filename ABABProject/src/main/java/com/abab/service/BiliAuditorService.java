@@ -21,7 +21,7 @@ public interface BiliAuditorService extends IService<BiliAuditor> {
 
     ServerResponse<List<BiliAuditor>> getAuditorsByAuthorService(BiliAuditor biliAuditor);
 
-    ServerResponse<BiliAuditor> registerService(BiliAuditor biliAuditor);
+    ServerResponse<BiliAuditor> registerService(BiliAuditor biliAuditor, String imagePath);
 
     ServerResponse<BiliAuditor> loginService(BiliAuditor biliAuditor);
 

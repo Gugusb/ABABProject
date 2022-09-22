@@ -6,7 +6,8 @@ public class ExcelAddress {
     /*
     * 生成文件存放路径
     */
-    public static final String FILE_PATH = "D:\\desk\\cocotest\\";
+    //public static final String FILE_PATH = "D:\\desk\\cocotest\\";
+    public static final String FILE_PATH = "/home/ubuntu/excels/";
 
 
     /*

@@ -67,14 +67,14 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @Override
-    public ServerResponse<BiliUser> registerService(BiliUser biliUser, MultipartFile image){
+    public ServerResponse<BiliUser> registerService(BiliUser biliUser, String imagePath){
         //检查用户信息是否全面
         ArrayList<Pair<Object, String>> l = new ArrayList<>();
         l.add(new Pair<>(biliUser.getUsername(), "用户名称"));
         l.add(new Pair<>(biliUser.getPassword(), "用户密码"));
         l.add(new Pair<>(biliUser.getUserauthor(), "用户昵称"));
         l.add(new Pair<>(biliUser.getBirthday(), "用户生日"));
-        l.add(new Pair<>(biliUser.getUseravatar(), "用户头像图片"));
+        //l.add(new Pair<>(biliUser.getUseravatar(), "用户头像图片"));
         for (Pair<Object, String> p : l){
             if(p.getFirst() == null){
                 return ServerResponse.createByErrorMessage(p.getSecond() + ConstUtil.NOTALLOW_EMPTY);
@@ -88,7 +88,7 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
         Legality.add(new Pair<>(biliUser.getUserauthor(), 200));
         Legality.add(new Pair<>(biliUser.getPhone(), 20));
         Legality.add(new Pair<>(biliUser.getUserautograph(), 500));
-        Legality.add(new Pair<>(biliUser.getUseravatar(), 500));
+        //Legality.add(new Pair<>(biliUser.getUseravatar(), 500));
         Legality.add(new Pair<>(biliUser.getMemo(), 255));
         for (Pair<Object, Integer> p : Legality){
             if(p.getFirst() != null){
@@ -98,14 +98,8 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
             }
         }
 
-        //尝试上传头像
-        ServerResponse<BiliUser> upload_response = this.uploadUserHead(image);
-        if(!upload_response.isSuccess()){
-            return upload_response;
-        }
-
         //上传成功 保存头像先
-        biliUser.setUseravatar(upload_response.getData().getUseravatar());
+        biliUser.setUseravatar(imagePath);
         //填充必要信息
         if(biliUser.getGender() == null){
             biliUser.setGender(1);
@@ -287,6 +281,7 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
 
     @Override
     public ServerResponse<BiliUser> uploadUserHead(MultipartFile image) {
+
         if(image.getSize() > VideoConstUtil.MAX_IMAGE_SIZE){
             return ServerResponse.createByErrorMessage("过大的头像文件");
         }
@@ -295,7 +290,6 @@ public class BiliUserServiceImpl extends ServiceImpl<BiliUserMapper, BiliUser>
         if(!image_response.isSuccess()){
             return ServerResponse.createByErrorMessage("头像图片文件上传失败");
         }
-
         //返回头像的路径
         BiliUser biliUser = new BiliUser();
         biliUser.setUseravatar(image_response.getData());

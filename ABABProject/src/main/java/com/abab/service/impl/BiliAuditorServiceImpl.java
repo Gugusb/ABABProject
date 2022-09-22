@@ -119,7 +119,7 @@ public class BiliAuditorServiceImpl extends ServiceImpl<BiliAuditorMapper, BiliA
     }
 
     @Override
-    public ServerResponse<BiliAuditor> registerService(BiliAuditor biliAuditor){
+    public ServerResponse<BiliAuditor> registerService(BiliAuditor biliAuditor, String imagePath){
         ServerResponse<BiliAuditor> serverResponse = null;
 
         //业务层逻辑
@@ -142,7 +142,7 @@ public class BiliAuditorServiceImpl extends ServiceImpl<BiliAuditorMapper, BiliA
         }
         else{
             biliAuditor.setPassword(MD5Util.getMD5(biliAuditor.getPassword()));
-
+            biliAuditor.setAuditoravatar(imagePath);
             this.save(biliAuditor);//向db插入用户
 
             serverResponse=ServerResponse.createRespBySuccess(biliAuditor);

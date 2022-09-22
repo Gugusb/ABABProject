@@ -21,7 +21,7 @@ import java.util.List;
 public interface BiliUserService extends IService<BiliUser> {
     ServerResponse<BiliUser> loginService(BiliUser biliUser);
 
-    ServerResponse<BiliUser> registerService(BiliUser biliUser, MultipartFile image);
+    ServerResponse<BiliUser> registerService(BiliUser biliUser, String imagePath);
 
     ServerResponse<List<BiliUser>> getUserInfoByIdService(BiliUser biliUser);
 

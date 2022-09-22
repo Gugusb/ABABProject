@@ -10,5 +10,7 @@ public class ImagePathConfiguration implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/photos/**").addResourceLocations("file:"+ VideoConstUtil.IMAGE_PATH);
         registry.addResourceHandler("/videos/**").addResourceLocations("file:"+ VideoConstUtil.VIDEO_PATH);
+        registry.addResourceHandler("/excels/**").addResourceLocations("file:"+ ExcelAddress.FILE_PATH);
+
     }
 }

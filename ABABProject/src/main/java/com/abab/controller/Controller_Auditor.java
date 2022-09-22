@@ -25,10 +25,10 @@ public class Controller_Auditor extends LogAdder {
 
 
     @RequestMapping(value = "/auditor/register", method = RequestMethod.POST)
-    public ServerResponse<BiliAuditor> register(HttpSession httpSession, BiliAuditor biliAuditor){
+    public ServerResponse<BiliAuditor> register(HttpSession httpSession, BiliAuditor biliAuditor, String imagePath){
         ServerResponse<BiliAuditor> serverResponse = null;
 
-        serverResponse = biliAuditorService.registerService(biliAuditor);
+        serverResponse = biliAuditorService.registerService(biliAuditor, imagePath);
 
         if(serverResponse.isSuccess()){
             super.addLogsForBack(httpSession,"增加一条管理员信息");

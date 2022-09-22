@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.lang.constant.Constable;
@@ -31,8 +32,21 @@ public class Controller_Video extends LogAdder {
     @Autowired
     private BiliVideoService biliVideoService;
 
-    @Autowired
-    private BiliUserService biliUserService;
+    @RequestMapping(value = "/video/upload_video_forpath", method = RequestMethod.POST)
+    public String uploadVideoForPath(HttpSession httpSession, MultipartFile videoFile){
+        //尝试上传文件
+        ServerResponse<String> upload_response = biliVideoService.uploadVideoFile(videoFile);
+
+        return upload_response.getData();
+    }
+
+    @RequestMapping(value = "/video/upload_image_forpath", method = RequestMethod.POST)
+    public String uploadImageForPath(HttpSession httpSession, MultipartFile imageFile){
+        //尝试上传文件
+        ServerResponse<String> upload_response = biliVideoService.uploadImageFile(imageFile);
+
+        return upload_response.getData();
+    }
 
     @RequestMapping(value = "/video/openvideo", method = RequestMethod.POST)
     public ServerResponse<BiliVideo> openVideo(HttpSession httpSession, BiliVideo biliVideo){

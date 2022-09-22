@@ -56,8 +56,8 @@ public class Controller_User extends LogAdder {
      * @return {@link ServerResponse}<{@link BiliUser}>
      */
     @RequestMapping(value = "/user/register", method = RequestMethod.POST)
-    public ServerResponse<BiliUser> register(HttpSession httpSession, BiliUser biliUser, MultipartFile image){
-        ServerResponse<BiliUser> serverResponse = biliUserService.registerService(biliUser, image);
+    public ServerResponse<BiliUser> register(HttpSession httpSession, BiliUser biliUser, String imagePath){
+        ServerResponse<BiliUser> serverResponse = biliUserService.registerService(biliUser, imagePath);
 
         if(serverResponse.isSuccess()){
             httpSession.setAttribute(ConstUtil.USER, serverResponse.getData());
@@ -74,11 +74,11 @@ public class Controller_User extends LogAdder {
      * @return {@link ServerResponse}<{@link BiliVideo}>
      */
     @RequestMapping(value = "/user/submitvideo", method = RequestMethod.POST)
-    public ServerResponse<BiliVideo> submitVideo(HttpSession httpSession, BiliVideo biliVideo, MultipartFile videoFile, MultipartFile imageFile){
+    public ServerResponse<BiliVideo> submitVideo(HttpSession httpSession, BiliVideo biliVideo, String imagePath, String videoPath){
         if(!AccessJudger.isUser(httpSession)){
             return ServerResponse.createByErrorMessage(ConstUtil.USER_UNLOGIN);
         }
-        ServerResponse<BiliVideo> serverResponse = biliVideoService.submitVideoService((BiliUser) httpSession.getAttribute(ConstUtil.USER), biliVideo, videoFile, imageFile);
+        ServerResponse<BiliVideo> serverResponse = biliVideoService.submitVideoService((BiliUser) httpSession.getAttribute(ConstUtil.USER), biliVideo, videoPath, imagePath);
         return serverResponse;
     }
 

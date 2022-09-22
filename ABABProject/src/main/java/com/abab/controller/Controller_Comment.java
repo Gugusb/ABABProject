@@ -53,7 +53,7 @@ public class Controller_Comment extends LogAdder {
 
         PageHelper.startPage(pageIndex, pageSize);
 
-        if(AccessJudger.isStaff(httpSession)){
+        if(true){
             serverResponse = commentService.getCommentsByVideoIdService(biliVideo);
         }
         else{
